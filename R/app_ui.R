@@ -28,47 +28,11 @@ app_ui <- function(request) {
             column(width = 12,
                    h1("Welcome to the nds3 App"),
                    p(HTML(
-                     "I introduce the nds3 framework - <strong>D</strong>ata-simulation via <strong>I</strong>terative <strong>S</strong>tochastic <strong>C</strong>ombinatorial <strong>O</strong>ptimization <strong>U</strong>sing <strong>R</strong>eported <strong>S</strong>ummary <strong>E</strong>stimates. This algorithmic framework reconstructs complete datasets using only summary statistics, giving researchers a way - when raw data are unavailable - to inform replication-study decision-making."
-                   )),
-                   h3("Purpose and Scope"),
-                   p("The primary objective of nds3 is to simulate an entire data set based solely on the available summary statistics."),
-                   tags$ul(
-                     tags$li(strong("Iterative:"), " The algorithm employs a cyclical process that continuously refines the simulated data."),
-                     tags$li(strong("Stochastic:"), " The method incorporates random sampling techniques to explore the data space effectively."),
-                     tags$li(strong("Combinatorial:"), " By transforming a high dimensional infinite search space into a finite optimization problem, nds3 efficiently navigates potential data arrangements.")
-                   ),
+                  "We introduce the NDS3 framework: <strong>N</strong>onparametric <strong>D</strong>ata <strong>S</strong>imulation from <strong>S</strong>ummary <strong>S</strong>tatistics.
+                  The primary scope of this algorithmic framework is to simulate complete datasets using only summary statistics, giving researchers a way to generate plausible sample data when original data are unavailable."
+                      )),
                    h3("Modular Structure"),
-                   p("The nds3 framework is composed of four interchangeable optimization modules tailored to different data structures and statistical models, each following a similar high-level workflow. Modules are organized by data dimensionality: in the univariate setting, iterative adjustments apply to a single vector, while in the multivariate context, moves operate on an entire matrix of multiple variables. An overview is presented in Table 1 below. These modules can operate independently or sequentially, depending on the specific requirements of the optimization context."),
-                   div(
-                     class = "table-responsive",
-                     style = "max-width:800px; margin-left:0; margin-right:auto;",
-                     tags$table(
-                       class = "table table-bordered text-center",
-                       tags$caption(
-                         tags$b("Table 1."), " ",
-                         tags$em("Modules and their corresponding functions in the R package"),
-                         style = "caption-side: top; text-align: left; color: black;"
-                       ),
-                       tags$thead(
-                         tags$tr(
-                           tags$th(tags$em("Data Structure"), colspan = 2, style = "text-align:center; color:black;" )
-                         ),
-                         tags$tr(
-                           tags$th("Univariate", style = "text-align:center; color:black;"),
-                           tags$th("Multivariate", style = "text-align:center; color:black;")
-                         )
-                       ),
-                       tags$tbody(
-                         tags$tr(
-                           tags$td(HTML("Descriptives (<code>optim_vec()</code>)")),
-                           tags$td(HTML("Linear Regression (<code>optim_lm()</code>)")),
-                         ),
-                         tags$tr(
-                           tags$td(HTML("ANOVA (<code>optim_aov()</code>)")),
-                         )
-                       )
-                     )
-                   ),
+                   p("The NDS3 framework is composed of two main simulation modules, ANOVA and multiple linear regression (LM), with a Descriptives sub-module. The modules are tailored to different data structures and statistical models, each following a similar high-level workflow. The ANOVA and LM modules produce datasets as a matrix, while the Descriptives sub-module generates a single variable. The modules can operate independently or sequentially, depending on the specific requirements of the optimization context."),
                    br(),
                    tags$a(
                      href   = "https://example.com/research_article.pdf",
@@ -85,14 +49,9 @@ app_ui <- function(request) {
           fluidRow(
             column(width = 6,
                    h2("High Level Workflow"),
-                   p("The process begins with the candidate initialization, thus, the creation of an initial simulated vector or matrix. The algorithm then iteratively refines the candidate by optimizing an objective function that quantifies the discrepancy between the summary statistics of the candidate and the reported targets. At each iteration the following two steps are performed."),
-                   h5("Candidate Modification"),
-                   p("Modifications to the data are produced through different types of moves (e.g. global and local; heuristic and stochastic) within the search space."),
-                   h5("Candidate Evaluation"),
-                   p("Each candidate is evaluated by an objective function and accepted based on a stochastic optimization criterion, ensuring that modifications progressively reduce the objective value."),
+                   p("The algorithmic framework simulates and adjusts data until its  summary statistics closely match the reported targets. The process (see Figure) begins with the candidate initialization, that is, the creation of an initial simulated dataset. The algorithm then iteratively refines the candidate by optimizing an objective function f that quantifies the discrepancy between the summary statistics of the candidate and the reported targets. At each iteration, the following two steps are performed. Candidate Modification: Modifications to the data are produced through different types of moves (i.e., adjustments of the data) within the search space. Candidate Evaluation: Each candidate is evaluated by f and accepted based on a stochastic optimization criterion, ensuring that modifications progressively reduce the  value of f."),
                    h4("Convergence"),
-                   p("The algorithm is deemed to have met the convergence criteria as soon as the best objective function score f_best falls below the user-specified tolerance. If convergence is not reached after Max Iteration steps, the algorithm restarts (up to Max Starts times) from the candidate with f_best. Only when all allowed iterations and restarts have been exhausted without achieving the tolerance does the routine stop due to iteration limits rather than error criteria.
-")
+                   p("The algorithm is deemed to have met the convergence criteria as soon as the best objective function value f_best falls below the user‐specified tolerance. If convergence is not reached within the iteration limit, the algorithm restarts from the best candidate found so far (with updated optimization settings). Only when all allowed iterations and restarts have been exhausted without achieving the tolerance does the routine stop due to iteration limits rather than discrepancy criteria.")
             ),
             column(width = 6,
                    tags$img(
