@@ -1,0 +1,64 @@
+Package: nds3
+Title: Data-simulation via Iterative Stochastic Combinatorial Optimization
+    Using Reported Summary Estimates
+Version: 0.0.1.000
+Date: 2025-06-27
+Authors@R:
+    person(
+      given   = c("Sebastian", "A.", "J."),
+      family  = "Lortz",
+      email   = "s.a.j.lortz@gmail.com",
+      role    = c("aut", "cre"),
+      comment = c(ORCID = "0009-0007-0281-7996")
+    )
+Description: I introduce DISCOURSE – this algorithmic
+    framework is designed to reconstruct complete data sets solely from
+    summary statistics.  It provides researchers with a tool to follow-up
+    analyses even when raw data are unavailable.
+License: MIT + file LICENSE
+URL: https://github.com/sebastian-lortz/discourse, https://sebastian-lortz.github.io/discourse/
+BugReports: https://github.com/sebastian-lortz/discourse/issues
+Remotes:
+    github::sebastian-lortz/discourse
+Imports: 
+    afex,
+    car,
+    config,
+    dplyr,
+    emmeans,
+    future,
+    future.apply,
+    ggplot2,
+    golem,
+    htmltools,
+    lme4,
+    markdown,
+    pso,
+    progressr,
+    Rcpp,
+    rhandsontable,
+    rlang,
+    shiny,
+    shinyjs,
+    shinyWidgets,
+    stats,
+    tidyr,
+    tidyselect,
+    utils
+Suggests:
+    knitr,
+    rmarkdown,
+    spelling,
+    testthat (>= 3.0.0),
+    gridExtra
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
+SystemRequirements: BLAS, LAPACK
+VignetteBuilder: 
+    knitr
+Config/testthat/edition: 3
+Encoding: UTF-8
+Language: en-US
+LazyData: true
+RoxygenNote: 7.3.2
