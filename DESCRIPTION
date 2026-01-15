@@ -24,6 +24,7 @@ Imports:
     htmltools,
     progressr,
     pso,
+    Rcpp,
     rhandsontable,
     rlang,
     shiny,

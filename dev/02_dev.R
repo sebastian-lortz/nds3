@@ -121,6 +121,7 @@ usethis::use_pkgdown_github_pages()
 
 # refresh pkgdown page
 # devtools::build_readme()
+pkgdown::build_favicons(overwrite = TRUE)
 options(rmarkdown.html_vignette.check_title = FALSE)
 pkgdown::build_site_github_pages()
 
