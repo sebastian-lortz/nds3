@@ -1,5 +1,5 @@
-# DISCOURSE (development version)
+# nds3 (development version)
 
-## discourse 0.0.0.9000
+## nds3 0.0.0.9000
 
 * Initial version ...

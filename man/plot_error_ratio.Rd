@@ -2,10 +2,10 @@
 % Please edit documentation in R/fct_plot_error_ratio.R
 \name{plot_error_ratio}
 \alias{plot_error_ratio}
-\title{Plot Error Ratio Evolution for a discourse.object}
+\title{Plot Error Ratio Evolution for a nds3.object}
 \usage{
 plot_error_ratio(
-  discourse_obj,
+  nds3_obj,
   run = 1,
   show_mean = TRUE,
   show_median = TRUE,
@@ -13,7 +13,7 @@ plot_error_ratio(
 )
 }
 \arguments{
-\item{discourse_obj}{A `discourse.object` S3 object produced by `optim_*` functions,
+\item{nds3_obj}{A `nds3.object` S3 object produced by `optim_*` functions,
 containing a `track_error` element (numeric vector or list of vectors).}
 
 \item{run}{Integer. Index of the run to plot when `track_error` is a list; default `1`.}
@@ -29,7 +29,7 @@ A `ggplot2` object.
 }
 \description{
 Displays how the ratio of correlation to regression error evolves across iterations
-for a `discourse.object`, enabling assessment of balance between objectives.
+for a `nds3.object`, enabling assessment of balance between objectives.
 }
 \examples{
  \dontrun{

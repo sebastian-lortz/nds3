@@ -5,7 +5,6 @@
 \title{Estimate objective function weights via pilot simulations}
 \usage{
 weights_est(
-  module,
   sim_runs,
   sim_data,
   target_cor,
@@ -29,8 +28,6 @@ weights_est(
 )
 }
 \arguments{
-\item{module}{Character; either `"lm"` or `"lme"` to select the module type.}
-
 \item{sim_runs}{Integer; number of simulation runs.}
 
 \item{sim_data}{Data frame. Predictor variables and outcome to be optimized; at least two columns.}
@@ -79,7 +76,7 @@ A list with components:
   }
 }
 \description{
-Runs single or multiple optimizations (i.e. optim_lm, optim_lme) to calibrate the balance between correlation and regression
+Runs single or multiple optimizations (i.e. optim_lm) to calibrate the balance between correlation and regression
 components in the objective function, yielding suggested weights.
 }
 \examples{

@@ -1,8 +1,8 @@
 ---
-title: "Application in R"
+title: "nds3_application"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{discourse_application}
+  %\VignetteIndexEntry{nds3_application}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -21,22 +21,22 @@ knitr::opts_chunk$set(
   dpi = 100
   )
 ```
-Install `discourse` from Github.
+Install `nds3` from Github.
 ```{r install, echo=TRUE, eval=FALSE}
 # install devtools if needed
 if (!requireNamespace("devtools")) {install.packages("devtools")}
 
 # install from GitHub
-devtools::install_github("sebastian-lortz/discourse")
+devtools::install_github("sebastian-lortz/nds3")
 ```
 
-Load the `discourse` package.
+Load the `nds3` package.
 ```{r load}
-library(discourse)
+library(nds3)
 ```
 
 ## ANOVA Module
-As part of the Open Science Collaboration’s large‐scale effort to estimate the replicability of psychological findings (Open-Science-Collaboration, 2015), many original datasets remain unavailable. In the study by Reynolds and Besner (2008) on contextual effects in reading aloud, participants’ response times to exception words and nonwords were measured under predictable switch and stay sequences to probe dynamic pathway control in skilled reading [https://osf.io/hasfu/]. In the following steps, I applied DISCOURSE to demonstrate how it’s ANOVA module can generate a fully synthetic dataset matching the reported summary estimates. 
+As part of the Open Science Collaboration’s large‐scale effort to estimate the replicability of psychological findings (Open-Science-Collaboration, 2015), many original datasets remain unavailable. In the study by Reynolds and Besner (2008) on contextual effects in reading aloud, participants’ response times to exception words and nonwords were measured under predictable switch and stay sequences to probe dynamic pathway control in skilled reading [https://osf.io/hasfu/]. In the following steps, I applied nds3 to demonstrate how it’s ANOVA module can generate a fully synthetic dataset matching the reported summary estimates. 
 
 I began by extracting the relevant parameters from the article.
 
@@ -140,7 +140,7 @@ Note. The two clusters emerge due to the low decimal precision of the reported F
 
 ## Descriptives and LM Module
 
-In the replication attempt by Bardwell et al. (2007) patients with obstructive sleep apnea completed both fatigue and depression scales to examine whether mood symptoms or apnea severity better predict daytime fatigue [https://doi.org/10.1016/j.jad.2006.06.013]. The original study’s (Bardwell et al., 2003) raw data are not publicly available. Here, I apply the Descriptives and LM module of the DISCOURSE framework to simulate a synthetic dataset that reproduces their reported summary estimates.
+In the replication attempt by Bardwell et al. (2007) patients with obstructive sleep apnea completed both fatigue and depression scales to examine whether mood symptoms or apnea severity better predict daytime fatigue [https://doi.org/10.1016/j.jad.2006.06.013]. The original study’s (Bardwell et al., 2003) raw data are not publicly available. Here, I apply the Descriptives and LM module of the nds3 framework to simulate a synthetic dataset that reproduces their reported summary estimates.
 
 #### Step 1.
 I began by extracting the relevant descriptive parameters from the article.

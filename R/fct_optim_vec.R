@@ -1,6 +1,6 @@
 #' Optimize a vector or matrix to match target means and SDs
 #'
-#' Uses the DISCOURSE algorithmic framework to simulate one or multiple
+#' Uses the nds3 algorithmic framework to simulate one or multiple
 #' vectors so that each matches specified target means and standard deviations under given input parameters.
 #'
 #' @param N Integer. Number of values in each vector.
@@ -25,7 +25,7 @@
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
 #' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
 #'
-#' @return A `discourse.object` list containing:
+#' @return A `nds3.object` list containing:
 #' \describe{ A list with the following elements for each variable:
 #'     \item{best_error}{Numeric. Minimum objective error achieved.}
 #'     \item{data}{Data.frame or matrix of optimized vectors (columns named by `target_mean`).}
@@ -296,7 +296,7 @@ optim_vec <- function(
       future::plan(future::sequential)
     }
     cat("Running with", n_workers, "worker(s). \n")
-    pkgs <- c("discourse", "Rcpp")
+    pkgs <- c("nds3", "Rcpp")
     cat("\nParallel optimization is running...\n")
     start_time <- Sys.time()
     if(progress_mode == "shiny") {
@@ -395,6 +395,6 @@ optim_vec <- function(
     track_error = track_error,
     grim         = grim_list
   )
-  class(result) <- "discourse.object"
+  class(result) <- "nds3.object"
   result
 }

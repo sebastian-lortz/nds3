@@ -24,7 +24,6 @@ devtools::build_readme()
 golem::add_module(name = "optim_vec", with_test = TRUE) # Name of the module
 golem::add_module(name = "optim_aov", with_test = TRUE) # Name of the module
 golem::add_module(name = "optim_lm", with_test = TRUE) # Name of the module
-golem::add_module(name = "optim_lme", with_test = TRUE) # Name of the module
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*
@@ -33,11 +32,9 @@ golem::add_fct("weights_vec", with_test = TRUE)
 golem::add_fct("weights_est", with_test = TRUE)
 golem::add_fct("optim_vec", with_test = TRUE)
 golem::add_fct("optim_lm", with_test = TRUE)
-golem::add_fct("optim_lme", with_test = TRUE)
 golem::add_fct("optim_aov", with_test = TRUE)
 golem::add_fct("hill_climb", with_test = TRUE)
 golem::add_fct("parallel_lm", with_test = TRUE)
-golem::add_fct("parallel_lme", with_test = TRUE)
 golem::add_fct("parallel_aov", with_test = TRUE)
 golem::add_fct("get_stats", with_test = TRUE)
 golem::add_fct("get_stats_parallel", with_test = TRUE)
@@ -53,7 +50,7 @@ golem::add_fct("plot_error_ratio", with_test = TRUE)
 
 golem::add_utils("helpers", with_test = TRUE)
 golem::add_utils("helpers_export", with_test = TRUE)
-golem::add_utils("discourse-package", with_test = TRUE)
+golem::add_utils("nds3-package", with_test = TRUE)
 golem::add_utils("server", with_test = TRUE)
 ## Rcpp
 # regenerate Rcpp bindings and NAMESPACE
@@ -74,7 +71,6 @@ golem::add_any_file("file.json")
 usethis::use_data_raw(name = "data_vec", open = FALSE)
 usethis::use_data_raw(name = "data_aov", open = FALSE)
 usethis::use_data_raw(name = "data_lm", open = FALSE)
-usethis::use_data_raw(name = "data_lme", open = FALSE)
 
 ## Tests ----
 ## Add one line by test you want to create
@@ -83,7 +79,7 @@ spelling::update_wordlist()
 # Documentation
 
 ## Vignette ----
-usethis::use_vignette("discourse_application")
+usethis::use_vignette("nds3_application")
 devtools::build_vignettes()
 
 ## Code Coverage----
@@ -129,9 +125,9 @@ options(rmarkdown.html_vignette.check_title = FALSE)
 pkgdown::build_site_github_pages()
 
 # render about doc
-rmarkdown::render("~/Desktop/Research Master/DISCOURSE/inst/app/www/about.Rmd",
+rmarkdown::render("/Users/lortz/Desktop/PhD/Research/simdata/nds3/inst/app/www/about.Rmd",
                   output_format = "github_document",
-                  output_file   = "~/Desktop/Research Master/DISCOURSE/inst/app/www/about.md")
+                  output_file   = "/Users/lortz/Desktop/PhD/Research/simdata/nds3/inst/app/www/about.md")
 
 # You're now set! ----
 # go to dev/03_deploy.R

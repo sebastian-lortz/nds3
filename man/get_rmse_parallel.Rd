@@ -2,12 +2,12 @@
 % Please edit documentation in R/fct_get_rmse_parallel.R
 \name{get_rmse_parallel}
 \alias{get_rmse_parallel}
-\title{Compute RMSE metrics across discourse.object runs}
+\title{Compute RMSE metrics across nds3.object runs}
 \usage{
 get_rmse_parallel(object_list)
 }
 \arguments{
-\item{object_list}{A `discourse.object` or list thereof. Objects produced by analysis functions such as `parallel_aov()`, `parallel_lm()`, `parallel_lme()`.}
+\item{object_list}{A `nds3.object` or list thereof. Objects produced by analysis functions such as `parallel_aov()`, `parallel_lm()`.}
 }
 \value{
 A list with components:
@@ -24,7 +24,7 @@ A list with components:
 }
 \description{
 Calculates root-mean-square error (RMSE) metrics for both between-run variability and deviations
-from specified target values across one or more `discourse.object` results.
+from specified target values across one or more `nds3.object` results.
 }
 \examples{
  \dontrun{

@@ -1,12 +1,12 @@
-#' Summarize a discourse.object
+#' Summarize a nds3.object
 #'
-#' Provides a comprehensive summary of a `discourse.object`, including RMSE,
-#' model components, and statistics depending on the analysis type (LM/LME, ANOVA, or vec).
+#' Provides a comprehensive summary of a `nds3.object`, including RMSE,
+#' model components, and statistics depending on the analysis type (LM, ANOVA, or vec).
 #'
-#' @param object A `discourse.object` produced by `optim_*` functions.
+#' @param object A `nds3.object` produced by `optim_*` functions.
 #' @param ...   Additional arguments (unused).
 #'
-#' @return An object of class `summary.discourse.object` containing:
+#' @return An object of class `summary.nds3.object` containing:
 #' \describe{
 #'   \item{rmse}{Named list of RMSE values.}
 #'   \item{inputs}{Original input list.}
@@ -15,9 +15,9 @@
 #'   \item{track_error}{Numeric vector of best error at each iteration.}
 #'   \item{track_error_ratio}{Numeric vector of error ratios (cor vs. reg) per iteration (if available).}
 #'   \item{model}{Fitted regression model or ANOVA table (if applicable).}
-#'   \item{coefficients}{regression estimates (LM/LME only).}
-#'   \item{std_errors}{Coefficient standard errors (LM/LME only).}
-#'   \item{correlations}{Correlation values (LM/LME only).}
+#'   \item{coefficients}{regression estimates (LM only).}
+#'   \item{std_errors}{Coefficient standard errors (LM only).}
+#'   \item{correlations}{Correlation values (LM only).}
 #'   \item{F_value}{ANOVA F statistics (ANOVA only).}
 #'   \item{means}{Group or variable means.}
 #'   \item{sds}{Group or variable standard deviations (vector only).}
@@ -29,18 +29,18 @@
 #' summary(res_lm)
 #' }
 #' @export
-summary.discourse.object <- function(object, ...) {
+summary.nds3.object <- function(object, ...) {
 
   # input checks
-  if (!inherits(object, "discourse.object")) {
-    stop("Input must be a discourse.object.")
+  if (!inherits(object, "nds3.object")) {
+    stop("Input must be a nds3.object.")
   }
   stats <- get_stats(object)
   rmse  <- get_rmse(object)
 
   if (!is.null(object$inputs$reg_equation)) {
 
-    # lm and lme module
+    # lm module
     summary_obj <- list(
       rmse              = rmse,
       inputs            = object$inputs,
@@ -83,6 +83,6 @@ summary.discourse.object <- function(object, ...) {
     )
   }
 
-  class(summary_obj) <- "summary.discourse.object"
+  class(summary_obj) <- "summary.nds3.object"
   summary_obj
 }

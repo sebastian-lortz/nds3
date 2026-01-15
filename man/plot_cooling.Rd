@@ -2,12 +2,12 @@
 % Please edit documentation in R/fct_plot_cooling.R
 \name{plot_cooling}
 \alias{plot_cooling}
-\title{Plot cooling schedule of a discourse.object}
+\title{Plot cooling schedule of a nds3.object}
 \usage{
-plot_cooling(discourse_obj)
+plot_cooling(nds3_obj)
 }
 \arguments{
-\item{discourse_obj}{A `discourse.object` returned by one of the `optim_*` functions, containing
+\item{nds3_obj}{A `nds3.object` returned by one of the `optim_*` functions, containing
 `inputs$max_iter`, `inputs$init_temp`, and `inputs$cooling_rate`.}
 }
 \value{
@@ -15,7 +15,7 @@ A `ggplot2` object.
 }
 \description{
 Visualizes the squared annealing temperature across iterations for a given
-`discourse.object`, allowing inspection of the cooling schedule used in optimization.
+`nds3.object`, allowing inspection of the cooling schedule used in optimization.
 }
 \examples{
  \dontrun{

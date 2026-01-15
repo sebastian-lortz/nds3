@@ -44,13 +44,13 @@ golem::add_shinyserver_file()
 # FIRST find and delete all .o .so files
 # find . -type f -name '*.so'
 # find . -type f -name '*.o'
-# ./src/discourse.so
-# rm ./src/discourse.so
+# ./src/nds3.so
+# rm ./src/nds3.so
 
 # THEN commit and push!
 
 renv::install("rstudio/rsconnect")
-renv::install("github::sebastian-lortz/discourse")
+renv::install("github::sebastian-lortz/nds3")
 renv::snapshot(prompt = FALSE)
 
 ## Add/update manifest file (optional; for Git backed deployment on Posit )

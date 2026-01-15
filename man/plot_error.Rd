@@ -2,12 +2,12 @@
 % Please edit documentation in R/fct_plot_error.R
 \name{plot_error}
 \alias{plot_error}
-\title{Plot Error Ratio Evolution for a discourse.object}
+\title{Plot Error Ratio Evolution for a nds3.object}
 \usage{
-plot_error(discourse_obj, run = 1, show_best = TRUE, first_iter = 1)
+plot_error(nds3_obj, run = 1, show_best = TRUE, first_iter = 1)
 }
 \arguments{
-\item{discourse_obj}{A `discourse.object` S3 object produced by `optim_*` functions,
+\item{nds3_obj}{A `nds3.object` S3 object produced by `optim_*` functions,
 containing a `track_error` element (numeric vector or list of vectors).}
 
 \item{run}{Integer. Index of the run to plot when `track_error` is a list; default `1`.}
@@ -22,11 +22,11 @@ A `ggplot2` object.
 }
 \description{
 Creates a plot of error versus iteration, to assess the trajectory of the
-objective function value of a `discourse.object`.
+objective function value of a `nds3.object`.
 }
 \examples{
  \dontrun{
-result <- optim_lme(args = ..., ...)
+result <- optim_lm(args = ..., ...)
 plot_error(result, first_iter = 500)
 }
 }

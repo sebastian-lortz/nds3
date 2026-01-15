@@ -1,9 +1,9 @@
-#' Plot cooling schedule of a discourse.object
+#' Plot cooling schedule of a nds3.object
 #'
 #' Visualizes the squared annealing temperature across iterations for a given
-#' `discourse.object`, allowing inspection of the cooling schedule used in optimization.
+#' `nds3.object`, allowing inspection of the cooling schedule used in optimization.
 #'
-#' @param discourse_obj A `discourse.object` returned by one of the `optim_*` functions, containing
+#' @param nds3_obj A `nds3.object` returned by one of the `optim_*` functions, containing
 #'   `inputs$max_iter`, `inputs$init_temp`, and `inputs$cooling_rate`.
 #'
 #' @return A `ggplot2` object.
@@ -16,11 +16,11 @@
 #' @importFrom rlang .data
 #' @import ggplot2
 #' @export
-plot_cooling <- function(discourse_obj) {
-  if (!inherits(discourse_obj, "discourse.object")) {
-    stop("Input must be a discourse.object.")
+plot_cooling <- function(nds3_obj) {
+  if (!inherits(nds3_obj, "nds3.object")) {
+    stop("Input must be a nds3.object.")
   }
-  inputs <- discourse_obj$inputs
+  inputs <- nds3_obj$inputs
   if (is.null(inputs$max_iter) || is.null(inputs$init_temp) || is.null(inputs$cooling_rate)) {
     stop("Missing 'max_iter', 'init_temp', or 'cooling_rate' in inputs.")
   }

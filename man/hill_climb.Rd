@@ -9,11 +9,9 @@ hill_climb(
   error_function,
   N,
   hill_climbs = 100,
-  LME = FALSE,
   num_preds = NULL,
   progress_bar = TRUE,
   neighborhood_size = 4,
-  w.length = NULL,
   outcome = NULL,
   progressor = NULL,
   pb_interval = NULL
@@ -28,15 +26,11 @@ hill_climb(
 
 \item{hill_climbs}{Integer. Maximum number of iterations for hill climbing. Default is 1e2.}
 
-\item{LME}{Logical. If TRUE, perform moves appropriate for mixed-effects data (long-to-wide swaps). Default is FALSE.}
-
-\item{num_preds}{Integer. Number of predictors (columns) when `LME = FALSE`. Required if not mixed-effects.}
+\item{num_preds}{Integer. Number of predictors (columns).}
 
 \item{progress_bar}{Logical. Whether to display a text progress bar. Default is TRUE.}
 
 \item{neighborhood_size}{Integer. Number of candidate moves evaluated per iteration. Default is 4.}
-
-\item{w.length}{Integer. Number of columns in the wide-format data when `LME = TRUE`. Required for mixed-effects.}
 
 \item{outcome}{Optional vector. Outcome variable for standard model moves (unused if error_function handles it).}
 
@@ -53,7 +47,7 @@ A list with components:
 }
 \description{
 Executes a hill-climbing algorithm to iteratively improve a candidate data set
-by minimizing a supplied error function. Supports both the LM and LME modules.
+by minimizing a supplied error function. Supports both the LM modules.
 }
 \examples{
  \dontrun{
@@ -63,7 +57,6 @@ hill_climb(
  N = 100,
  error_function = function(candidate) {},
  hill_climbs = 100,
- LME = TRUE,
  num_preds = NULL,
  progress_bar = TRUE,
  progressor = NULL,

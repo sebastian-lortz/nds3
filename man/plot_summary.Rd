@@ -2,12 +2,12 @@
 % Please edit documentation in R/fct_plot_summary.R
 \name{plot_summary}
 \alias{plot_summary}
-\title{Plot Summary of Simulated vs. Target Statistics for a discourse.object}
+\title{Plot Summary of Simulated vs. Target Statistics for a nds3.object}
 \usage{
-plot_summary(discourse_obj, standardised = TRUE, eps = 1e-12)
+plot_summary(nds3_obj, standardised = TRUE, eps = 1e-12)
 }
 \arguments{
-\item{discourse_obj}{A `discourse.object` produced by `optim_*` functions,
+\item{nds3_obj}{A `nds3.object` produced by `optim_*` functions,
 containing both simulated data/results and `inputs$target_*` values.}
 
 \item{standardised}{Logical; if `TRUE`, differences are divided by target values
@@ -21,7 +21,7 @@ A `ggplot2` object.
 }
 \description{
 Visualizes discrepancies between simulated and target summary statistics
-(e.g., means, SDs, F-values, correlations, regression coefficients) for a single `discourse.object`.
+(e.g., means, SDs, F-values, correlations, regression coefficients) for a single `nds3.object`.
 }
 \examples{
  \dontrun{

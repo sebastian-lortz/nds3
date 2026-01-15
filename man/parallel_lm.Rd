@@ -60,7 +60,7 @@ parallel_lm(
 \item{progress_mode}{Character. Either "console" or "shiny" for progress handler. Default `console`.}
 }
 \value{
-A list of multiple `discourse.object`s, each containing:
+A list of multiple `nds3.object`s, each containing:
 \describe{
   \item{best_error}{Numeric. Minimum objective error achieved.}
   \item{data}{Data frame of optimized predictor and outcome values.}
@@ -70,7 +70,7 @@ A list of multiple `discourse.object`s, each containing:
 }
 }
 \description{
-Uses the DISCOURSE algorithmic framework to simulate multiple data sets
+Uses the nds3 algorithmic framework to simulate multiple data sets
 such that the resulting correlations and regression coefficients
 match specified targets under a given regression model and input parameters.
 }

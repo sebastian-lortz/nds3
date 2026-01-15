@@ -1,9 +1,9 @@
-#' Aggregate statistics across discourse.object runs
+#' Aggregate statistics across nds3.object runs
 #'
 #' Computes summary metrics (mean, median, standard deviation, minimum, and maximum)
-#' for each numeric output component across multiple `discourse.object` results.
+#' for each numeric output component across multiple `nds3.object` results.
 #'
-#' @param object_list A `list` of `discourse.object` instances. Outputs from functions (e.g., `optim_vec`, `optim_aov()`, `optim_lm()`, `optim()`).
+#' @param object_list A `list` of `nds3.object` instances. Outputs from functions (e.g., `optim_vec`, `optim_aov()`, `optim_lm()`, `optim()`).
 #'
 #' @return A `list` of `data.frame` objects. Each data.frame corresponds to one numeric component (e.g., `reg`, `se`, `cor`, `mean`, `sd`), and contains columns:
 #' \describe{
@@ -23,9 +23,9 @@
 #' @export
 get_stats_parallel <- function(object_list) {
   # validate input
-  if (!is.list(object_list)) stop("`object_list` must be a list of discourse.object")
-  if (!all(vapply(object_list, function(x) inherits(x, "discourse.object"), logical(1L)))) {
-    stop("All elements of `object_list` must be discourse.object")
+  if (!is.list(object_list)) stop("`object_list` must be a list of nds3.object")
+  if (!all(vapply(object_list, function(x) inherits(x, "nds3.object"), logical(1L)))) {
+    stop("All elements of `object_list` must be nds3.object")
   }
   stats_list <- lapply(object_list, get_stats)
   comps <- names(stats_list[[1]])[vapply(stats_list[[1]], is.numeric, logical(1L))]

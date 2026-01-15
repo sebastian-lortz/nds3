@@ -1,6 +1,6 @@
 #' Optimize simulated data to match ANOVA F-values
 #'
-#' Uses the DISCOURSE algorithmic framework to simulate data that
+#' Uses the nds3 algorithmic framework to simulate data that
 #' produce target ANOVA F-statistics under a specified factorial design given input parameters.
 #'
 #' @param N Integer. Total number of subjects (sum of `subgroup_sizes`).
@@ -31,7 +31,7 @@
 #' @param progress_bar Logical. Show text progress bar during optimization. Default is TRUE.
 #' @param progress_mode Character. Either "console" or "shiny" (or "off" internally set) for progress handler. Default `console`.
 #'
-#' @return A `discourse.object` list containing:
+#' @return A `nds3.object` list containing:
 #' \describe{
 #'   \item{best_error}{Numeric. Minimum error (RMSE) achieved.}
 #'   \item{data}{Data frame of optimized outcome values (and grouping variables).}
@@ -454,6 +454,6 @@ optim_aov <- function(
     track_error = track_error,
     grim        = grim
   )
-  class(res) <- "discourse.object"
+  class(res) <- "nds3.object"
   res
 }

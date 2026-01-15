@@ -1,6 +1,6 @@
 #' Optimize multiple data sets to match ANOVA F-values
 #'
-#' Uses the DISCOURSE algorithmic framework to simulate multiple data sets that
+#' Uses the nds3 algorithmic framework to simulate multiple data sets that
 #' produce target ANOVA F-statistics under a specified factorial design given input parameters.
 #'
 #' @param N Integer. Total number of subjects (sum of `subgroup_sizes`).
@@ -32,7 +32,7 @@
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
 #' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
 #'
-#' @return A list of multiple `discourse.object`s, each containing:
+#' @return A list of multiple `nds3.object`s, each containing:
 #' \describe{
 #'   \item{best_error}{Numeric. Minimum error (RMSE) achieved.}
 #'   \item{data}{Data frame of optimized outcome values (and grouping variables).}
@@ -198,7 +198,7 @@ parallel_aov <- function(
     progress_mode <- "off"
     }
   cat("Running with", n_workers, "worker(s). \n")
-  pkgs <- c("discourse", "Rcpp")
+  pkgs <- c("nds3", "Rcpp")
   cat("\nParallel optimization is running...\n")
   start_time <- Sys.time()
 
@@ -252,7 +252,7 @@ parallel_aov <- function(
     } else {
       idx <- which.min(errors)
       result <- values[[idx]]
-      class(result) <- "discourse.object"
+      class(result) <- "nds3.object"
       return(result)
     }
   } else {

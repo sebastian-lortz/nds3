@@ -2,19 +2,19 @@
 % Please edit documentation in R/fct_plot_rmse.R
 \name{plot_rmse}
 \alias{plot_rmse}
-\title{Plot RMSE Comparison for discourse.object runs}
+\title{Plot RMSE Comparison for nds3.object runs}
 \usage{
 plot_rmse(object_list)
 }
 \arguments{
-\item{object_list}{A `discourse.object` or list thereof, typically output from `optim_*` functions.}
+\item{object_list}{A `nds3.object` or list thereof, typically output from `optim_*` functions.}
 }
 \value{
 A `ggplot2` object.
 }
 \description{
 Visualizes the root-mean-square error (RMSE) distributions for between-run variability
-versus deviations from target values across multiple `discourse.object` runs (e.g. parallel_aov()).
+versus deviations from target values across multiple `nds3.object` runs (e.g. parallel_aov()).
 }
 \examples{
  \dontrun{

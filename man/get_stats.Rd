@@ -2,19 +2,19 @@
 % Please edit documentation in R/fct_get_stats.R
 \name{get_stats}
 \alias{get_stats}
-\title{Extract statistics from a single discourse.object}
+\title{Extract statistics from a single nds3.object}
 \usage{
 get_stats(result)
 }
 \arguments{
-\item{result}{A `discourse.object` produced by analysis functions (e.g., `optim_vec`, `optim_aov()`, `optim_lm()`, `optim()`).}
+\item{result}{A `nds3.object` produced by analysis functions (e.g., `optim_vec`, `optim_aov()`, `optim_lm()`, `optim()`).}
 }
 \value{
 A named `list` containing elements dependent on the input type:
 \describe{
   \item{model}{Model object or ANOVA table used for estimating parameters.}
-  \item{reg}{Numeric vector of regression coefficients (fixed effects) and random intercept (last element, for LME only) for regression-based objects.}
-  \item{se}{Numeric vector of standard errors corresponding to `reg` (excluding the random intercept for LME).}
+  \item{reg}{Numeric vector of regression coefficients (fixed effects) for regression-based objects.}
+  \item{se}{Numeric vector of standard errors corresponding to `reg`.}
   \item{cor}{Numeric vector of bivariate correlations for regression-based objects.}
   \item{mean}{Numeric vector of means: for regression-based, variable means (columns in wide format); for vector-based, variable means; for ANOVA, (sub)group means.}
   \item{sd}{Numeric vector of standard deviations for regression- and vector-based objects.}
@@ -22,11 +22,11 @@ A named `list` containing elements dependent on the input type:
 }
 }
 \description{
-Computes and returns key analytical outputs from one `discourse.object`, including model fits,
+Computes and returns key analytical outputs from one `nds3.object`, including model fits,
 parameter estimates, and summary statistics appropriate for regression, ANOVA, or vector-based analyses.
 }
 \examples{
  \dontrun{
-get_stats(discourse.object)
+get_stats(nds3.object)
 }
 }

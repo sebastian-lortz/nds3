@@ -1,9 +1,9 @@
-#' Plot Summary of Simulated vs. Target Statistics for a discourse.object
+#' Plot Summary of Simulated vs. Target Statistics for a nds3.object
 #'
 #' Visualizes discrepancies between simulated and target summary statistics
-#' (e.g., means, SDs, F-values, correlations, regression coefficients) for a single `discourse.object`.
+#' (e.g., means, SDs, F-values, correlations, regression coefficients) for a single `nds3.object`.
 #'
-#' @param discourse_obj A `discourse.object` produced by `optim_*` functions,
+#' @param nds3_obj A `nds3.object` produced by `optim_*` functions,
 #'   containing both simulated data/results and `inputs$target_*` values.
 #' @param standardised Logical; if `TRUE`, differences are divided by target values
 #'   (except when targets are near zero); default `TRUE`.
@@ -21,14 +21,14 @@
 #' @import ggplot2
 #' @import dplyr
 #' @export
-plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
+plot_summary <- function(nds3_obj, standardised = TRUE, eps = 1e-12) {
 
   # input check
-  if (!inherits(discourse_obj, "discourse.object")) {
-    stop("Input must be a discourse.object.")
+  if (!inherits(nds3_obj, "nds3.object")) {
+    stop("Input must be a nds3.object.")
   }
-  if (!is.list(discourse_obj) || is.null(discourse_obj$inputs) || !is.list(discourse_obj$inputs)) {
-    stop("`discourse_obj` must be a list containing an 'inputs' list element.")
+  if (!is.list(nds3_obj) || is.null(nds3_obj$inputs) || !is.list(nds3_obj$inputs)) {
+    stop("`nds3_obj` must be a list containing an 'inputs' list element.")
   }
   if (!is.logical(standardised) || length(standardised) != 1) {
     stop("`standardised` must be a single logical value.")
@@ -67,14 +67,14 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
     }
   }
 
-  # data lm and lme module
-  if (!is.null(discourse_obj$inputs$target_reg)) {
-    target_reg <- discourse_obj$inputs$target_reg
-    target_cor <- discourse_obj$inputs$target_cor
-    target_se  <- discourse_obj$inputs$target_se
+  # data lm module
+  if (!is.null(nds3_obj$inputs$target_reg)) {
+    target_reg <- nds3_obj$inputs$target_reg
+    target_cor <- nds3_obj$inputs$target_cor
+    target_se  <- nds3_obj$inputs$target_se
     reg_dec <- max(count_decimals(target_reg))
     cor_dec <- max(count_decimals(target_cor))
-    stats    <- get_stats(discourse_obj)
+    stats    <- get_stats(nds3_obj)
     sim_reg  <- stats$reg
     sim_cor  <- stats$cor
     sim_se   <- stats$se
@@ -163,10 +163,10 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
     return(p)
 
     # aov module
-  } else if (!is.null(discourse_obj$inputs$target_f_list)) {
-    target_F <- discourse_obj$inputs$target_f_list$F
+  } else if (!is.null(nds3_obj$inputs$target_f_list)) {
+    target_F <- nds3_obj$inputs$target_f_list$F
     F_dec <- count_decimals(target_F)
-    stats <- get_stats(discourse_obj)
+    stats <- get_stats(nds3_obj)
     sim_F <- stats$F_value
     sim_F_r <- round(sim_F, F_dec)
     centered <- compute_centered(sim_F_r, target_F)
@@ -208,18 +208,18 @@ plot_summary <- function(discourse_obj, standardised = TRUE, eps = 1e-12) {
 
     # vec module
   } else {
-    target_mean <- discourse_obj$inputs$target_mean
-    target_sd   <- discourse_obj$inputs$target_sd
+    target_mean <- nds3_obj$inputs$target_mean
+    target_sd   <- nds3_obj$inputs$target_sd
     mean_dec <- count_decimals(target_mean)
     sd_dec   <- count_decimals(target_sd)
-    stats <- get_stats(discourse_obj)
+    stats <- get_stats(nds3_obj)
     sim_mean <- stats$mean
     sim_sd   <- stats$sd
     sim_mean_r <- round(sim_mean, mean_dec)
     sim_sd_r   <- round(sim_sd, sd_dec)
     centered_mean <- compute_centered(sim_mean_r, target_mean)
     centered_sd   <- compute_centered(sim_sd_r, target_sd)
-    sim_data <- as.data.frame(discourse_obj$data)
+    sim_data <- as.data.frame(nds3_obj$data)
     vars <- colnames(sim_data)
     if (is.null(vars)) vars <- names(target_mean)
     df <- data.frame(

@@ -1,6 +1,6 @@
 #' Optimize multiple simulated data sets to match target correlations and fixed-effects regression fits
 #'
-#' Uses the DISCOURSE algorithmic framework to simulate multiple data sets
+#' Uses the nds3 algorithmic framework to simulate multiple data sets
 #' such that the resulting correlations and regression coefficients
 #' match specified targets under a given regression model and input parameters.
 #'
@@ -22,7 +22,7 @@
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
 #' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
 #'
-#' @return A list of multiple `discourse.object`s, each containing:
+#' @return A list of multiple `nds3.object`s, each containing:
 #' \describe{
 #'   \item{best_error}{Numeric. Minimum objective error achieved.}
 #'   \item{data}{Data frame of optimized predictor and outcome values.}
@@ -154,7 +154,7 @@ parallel_lm <- function(
     progress_mode <- "off"
   }
   cat("Running with", n_workers, "worker(s). \n")
-  pkgs <- c("discourse", "Rcpp")
+  pkgs <- c("nds3", "Rcpp")
 
   cat("\nParallel optimization is running...\n")
   start_time <- Sys.time()
@@ -205,7 +205,7 @@ handlers = handler)
     } else {
       idx <- which.min(errors)
       result <- values[[idx]]
-      class(result) <- "discourse.object"
+      class(result) <- "nds3.object"
       return(result)
     }
   } else {

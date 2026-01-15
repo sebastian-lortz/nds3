@@ -1,9 +1,8 @@
 #' Estimate objective function weights via pilot simulations
 #'
-#' Runs single or multiple optimizations (i.e. optim_lm, optim_lme) to calibrate the balance between correlation and regression
+#' Runs single or multiple optimizations (i.e. optim_lm) to calibrate the balance between correlation and regression
 #' components in the objective function, yielding suggested weights.
 #'
-#' @param module     Character; either `"lm"` or `"lme"` to select the module type.
 #' @param sim_runs   Integer; number of simulation runs.
 #' @param pool_range Integer; the range of best error values to pool for estimating the weights. Default is `10`.
 #' @param sim_data Data frame. Predictor variables and outcome to be optimized; at least two columns.
@@ -48,7 +47,7 @@
 #' )
 #' }
 #' @export
-weights_est <- function(module,
+weights_est <- function(
                         sim_runs,
                         sim_data,
                         target_cor,
@@ -80,9 +79,7 @@ weights_est <- function(module,
 ) {
 
   # input checks
-  if (!is.character(module) || length(module) != 1 || !module %in% c("lm", "lme")) {
-    stop("`module` must be a single string: either \"lm\" or \"lme\".")
-  }
+
   if (!is.numeric(sim_runs) || length(sim_runs) != 1 ||
       sim_runs < 1 || sim_runs != as.integer(sim_runs)) {
     stop("`sim_runs` must be a single positive integer indicating the number of simulation runs.")
@@ -95,26 +92,7 @@ weights_est <- function(module,
   # optimization process
   for (runs in seq_len(sim_runs)) {
     if (parallel_start == 1) {
-      if (module == "lme") {
-        opt_run <- optim_lme(
-          sim_data         = sim_data,
-          target_cor       = target_cor,
-          target_reg       = target_reg,
-          reg_equation     = reg_equation,
-          target_se        = target_se,
-          weight           = c(1, 1),
-          max_iter         = max_iter,
-          init_temp        = init_temp,
-          cooling_rate     = cooling_rate,
-          tolerance              = tolerance,
-          progress_bar     = progress_bar,
-          max_starts       = max_starts,
-          hill_climbs      = NULL,
-          move_prob        = move_prob,
-          min_decimals     = min_decimals,
-          progress_mode    = progress_mode
-          )
-      } else {
+
         opt_run <- optim_lm(
           sim_data         = sim_data,
           target_cor       = target_cor,
@@ -133,29 +111,9 @@ weights_est <- function(module,
           min_decimals     = min_decimals,
           progress_mode    = progress_mode
         )
-      }
+
     } else {
-      if (module == "lme") {
-        opt_run <- parallel_lme(
-          sim_data             = sim_data,
-          target_cor           = target_cor,
-          target_reg           = target_reg,
-          reg_equation         = reg_equation,
-          target_se            = target_se,
-          weight               = weight,
-          max_iter             = max_iter,
-          init_temp            = init_temp,
-          cooling_rate         = cooling_rate,
-          tolerance            = tolerance,
-          max_starts           = max_starts,
-          parallel_start       = parallel_start,
-          hill_climbs          = NULL,
-          return_best_solution = TRUE,
-          move_prob            = move_prob,
-          min_decimals         = min_decimals,
-          progress_mode        = progress_mode
-        )
-      } else {
+
         opt_run <- parallel_lm(
           sim_data             = sim_data,
           target_cor           = target_cor,
@@ -175,7 +133,7 @@ weights_est <- function(module,
           min_decimals         = min_decimals,
           progress_mode        = progress_mode
           )
-      }
+
     }
 
     # combine results

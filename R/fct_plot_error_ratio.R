@@ -1,9 +1,9 @@
-#' Plot Error Ratio Evolution for a discourse.object
+#' Plot Error Ratio Evolution for a nds3.object
 #'
 #' Displays how the ratio of correlation to regression error evolves across iterations
-#' for a `discourse.object`, enabling assessment of balance between objectives.
+#' for a `nds3.object`, enabling assessment of balance between objectives.
 #'
-#' @param discourse_obj A `discourse.object` S3 object produced by `optim_*` functions,
+#' @param nds3_obj A `nds3.object` S3 object produced by `optim_*` functions,
 #'   containing a `track_error` element (numeric vector or list of vectors).
 #' @param run Integer. Index of the run to plot when `track_error` is a list; default `1`.
 #' @param show_mean Logical. If `TRUE`, draws a horizontal line at the mean error ratio; default `TRUE`.
@@ -20,7 +20,7 @@
 #' @importFrom rlang .data
 #' @import ggplot2
 #' @export
-plot_error_ratio <- function(discourse_obj, run = 1,
+plot_error_ratio <- function(nds3_obj, run = 1,
                              show_mean = TRUE,
                              show_median = TRUE,
                              show_final = TRUE) {
@@ -29,13 +29,13 @@ plot_error_ratio <- function(discourse_obj, run = 1,
   if (!requireNamespace("ggplot2", quietly=TRUE)) {
     stop("`ggplot2` is needed to plot summaries; please install it.")
   }
-  if (!inherits(discourse_obj, "discourse.object")) {
-    stop("Input must be a discourse.object.")
+  if (!inherits(nds3_obj, "nds3.object")) {
+    stop("Input must be a nds3.object.")
   }
-  if (is.null(discourse_obj$track_error_ratio)) {
-    stop("Only discourse.object from optim_lm or optim_lme have a track_error_ratio element.")
+  if (is.null(nds3_obj$track_error_ratio)) {
+    stop("Only nds3.object from optim_lm have a track_error_ratio element.")
   }
-  n_runs <- length(discourse_obj$track_error_ratio)
+  n_runs <- length(nds3_obj$track_error_ratio)
   if (!is.numeric(run) || length(run) != 1 || run != as.integer(run) ||
       run < 1 || run > n_runs) {
     stop(sprintf("'run' must be a single integer between 1 and %d.", n_runs))
@@ -61,7 +61,7 @@ plot_error_ratio <- function(discourse_obj, run = 1,
     )
 
   # data
-  err_data <- discourse_obj$track_error_ratio
+  err_data <- nds3_obj$track_error_ratio
   if (is.list(err_data)) {
     if (length(err_data) < run) stop("The specified run does not exist in track_error_ratio.")
     err_vec <- err_data[[run]]

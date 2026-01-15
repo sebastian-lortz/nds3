@@ -60,9 +60,9 @@ mod_optim_vec_ui <- function(id) {
                 ns("mod"),
                 label = name_with_info(
                   "Data Format",
-                  "The module you would like to optimize the data for. Choose lme if you would like to enter repeated meaures."
+                  "The module you would like to optimize the data for."
                 ),
-                choices  = c("LM (long format)" = "lm", "LME (wide format)" = "lme"),
+                choices  = c("LM (long format)" = "lm",
                 selected = "LM (long format)",
                 width    = "100%"
               ),
@@ -131,9 +131,6 @@ mod_optim_vec_ui <- function(id) {
                 ),
                 div(style = "display:inline-block; margin-left:10px;",
                     actionButton(ns("proceed_lm"),  "Proceed with LM",   class = "btn-sm btn-info", style = "margin-left:10px;")
-                ),
-                div(style = "display:inline-block; margin-left:10px;",
-                    actionButton(ns("proceed_lme"), "Proceed with LME",  class = "btn-sm btn-info", style   = "margin-left:10px;")
                 )
               )
             ),
@@ -158,9 +155,10 @@ mod_optim_vec_ui <- function(id) {
                      actionButton(ns("download"),        name_with_info("Download","Download data or full object"), class = "btn-sm")
               )
             ),
-            div(style = "overflow:visible; margin-top:20px;", uiOutput(ns("main_output"))),
-        )
 
+            div(style = "overflow:visible; margin-top:20px;", uiOutput(ns("main_output")))
+        )
+        )
     )
   )
 }
@@ -175,9 +173,8 @@ mod_optim_vec_server <- function(id, root_session) {
       status = "ready",
       last   = NULL,
       dirty  = TRUE,
-      for_lm = NULL,
-      for_lme= NULL
-    )
+      for_lm = NULL
+      )
 
     observeEvent(input$mod, {
       if (input$mod == "lm") {
@@ -227,7 +224,7 @@ mod_optim_vec_server <- function(id, root_session) {
       for (btn in c(
         "plot_error","get_rmse",
         "plot_summary","plot_cooling",
-        "display_data","download", "proceed_lm","proceed_lme"
+        "display_data","download", "proceed_lm"
       )) {
         shinyjs::disable(btn)
       }
@@ -311,7 +308,7 @@ mod_optim_vec_server <- function(id, root_session) {
     })
 
     shinyjs::disable("run")
-    lapply(c("plot_error","get_rmse","plot_summary","plot_cooling","display_data","download","proceed_lm","proceed_lme"),
+    lapply(c("plot_error","get_rmse","plot_summary","plot_cooling","display_data","download","proceed_lm"),
            shinyjs::disable
     )
 
@@ -361,7 +358,7 @@ mod_optim_vec_server <- function(id, root_session) {
                "tolerance", "max_iter", "init_temp", "cooling_rate",
                "max_starts", "parallel", "weight_table", "estimate_weights",
                "plot_error","get_rmse","plot_summary","plot_cooling",
-               "display_data","download", "proceed_lm","proceed_lme"),
+               "display_data","download", "proceed_lm"),
              shinyjs::disable
       )
       withProgress(message = "Running optimization...", value = 0, {
@@ -389,7 +386,7 @@ mod_optim_vec_server <- function(id, root_session) {
                "tolerance", "max_iter", "init_temp", "cooling_rate",
                "max_starts", "parallel", "weight_table", "estimate_weights",
                "plot_error","get_rmse","plot_summary","plot_cooling",
-               "display_data","download", "proceed_lm","proceed_lme"),
+               "display_data","download", "proceed_lm"),
              shinyjs::enable
       )
       for (tbl in c("param_table","weight_table")) {
@@ -442,17 +439,6 @@ mod_optim_vec_server <- function(id, root_session) {
         root_session,
         inputId  = "main",
         selected = "Linear Regression"
-      )
-    })
-
-    observeEvent(input$proceed_lme, {
-      req(!rv$dirty, rv$result)
-      rv$for_lme <- rv$result$data
-      root_session$userData$lme_data(rv$result$data)
-      updateNavbarPage(
-        root_session,
-        inputId  = "main",
-        selected = "Mixed-Effect Linear Regression"
       )
     })
 
@@ -546,7 +532,7 @@ mod_optim_vec_server <- function(id, root_session) {
       if (rv$dirty) return(NULL)
       req(input$run_select)
       plot_error(
-        discourse_obj = rv$result,
+        nds3_obj = rv$result,
         run           = which(rv$params$Variable == input$run_select),
         first_iter = as.integer(input$iter_select)
       )
@@ -566,7 +552,7 @@ mod_optim_vec_server <- function(id, root_session) {
       utils::head(as.data.frame(rv$result$data), min(nrow(rv$result$data),15))
     }, rownames = TRUE)
     output$dl_object <- downloadHandler(
-      filename = "discourse_object.rds",
+      filename = "nds3_object.rds",
       content  = function(file) {
         req(!rv$dirty)
         saveRDS(rv$result, file)

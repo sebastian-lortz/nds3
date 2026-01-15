@@ -1,4 +1,4 @@
-#' Internal helper functions for discourse package
+#' Internal helper functions for nds3 package
 #'
 #' @description Utility functions for data handling and calculations
 #'

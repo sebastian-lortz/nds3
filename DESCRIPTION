@@ -3,20 +3,14 @@ Title: Non-Parametric Data Simulation from Summary Statistics
 Version: 0.0.1.000
 Date: 2025-06-27
 Authors@R:
-    person(
-      given   = c("Sebastian", "A.", "J."),
-      family  = "Lortz",
-      email   = "s.a.j.lortz@gmail.com",
-      role    = c("aut", "cre"),
-      comment = c(ORCID = "0009-0007-0281-7996")
-    )
-Description: We introduce the NDS3 framework: Nonparametric Data Simulation from Summary Statistics.
-The primary scope of this algorithmic framework is to simulate complete datasets using only summary statistics, giving researchers a way to generate plausible sample data when original data are unavailable.
+    person(c("Sebastian", "A.", "J."), "Lortz", , "s.a.j.lortz@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0007-0281-7996"))
+Description: We introduce the NDS3 framework: Nonparametric Data
+    Simulation from Summary Statistics.
 License: MIT + file LICENSE
-URL: https://github.com/sebastian-lortz/discourse, https://sebastian-lortz.github.io/discourse/
-BugReports: https://github.com/sebastian-lortz/discourse/issues
-Remotes:
-    github::sebastian-lortz/discourse
+URL: https://github.com/sebastian-lortz/nds3,
+    https://sebastian-lortz.github.io/nds3/
+BugReports: https://github.com/sebastian-lortz/nds3/issues
 Imports: 
     afex,
     car,
@@ -25,13 +19,11 @@ Imports:
     emmeans,
     future,
     future.apply,
-    ggplot2, 
+    ggplot2,
     golem,
     htmltools,
-    lme4,
-    markdown,
-    pso,
     progressr,
+    pso,
     Rcpp,
     rhandsontable,
     rlang,
@@ -43,19 +35,18 @@ Imports:
     tidyselect,
     utils
 Suggests:
+    gridExtra,
     knitr,
     rmarkdown,
     spelling,
-    testthat (>= 3.0.0),
-    gridExtra
-LinkingTo: 
-    Rcpp,
-    RcppArmadillo
-SystemRequirements: BLAS, LAPACK
+    testthat (>= 3.0.0)
 VignetteBuilder: 
     knitr
+Remotes:
+    github::sebastian-lortz/nds3
 Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
 LazyData: true
 RoxygenNote: 7.3.2
+SystemRequirements: BLAS, LAPACK

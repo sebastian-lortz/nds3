@@ -4,4 +4,4 @@
 
 pkgload::load_all(export_all = FALSE,helpers = FALSE,attach_testthat = FALSE)
 options( "golem.app.prod" = TRUE)
-discourse::run_app() # add parameters here (if any)
+nds3::run_app() # add parameters here (if any)

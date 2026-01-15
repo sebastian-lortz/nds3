@@ -1,6 +1,6 @@
 #' Optimize simulated data to match target correlations and fixed-effects regression estimates
 #'
-#' Uses the DISCOURSE algorithmic framework to simulate
+#' Uses the nds3 algorithmic framework to simulate
 #' data such that the resulting correlations and regression coefficients
 #' match specified targets under a given regression model and input parameters.
 #'
@@ -21,7 +21,7 @@
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
 #' @param progress_mode Character. Either "console" or "shiny" (or "off" internally set) for progress handler. Default `console`.
 #'
-#' @return A `discourse.object` list containing:
+#' @return A `nds3.object` list containing:
 #' \describe{
 #'   \item{best_error}{Numeric. Minimum objective error achieved.}
 #'   \item{data}{Data frame of optimized predictor and outcome values.}
@@ -284,7 +284,6 @@ optim_lm <- function(
           N = N,
           error_function = error_function,
           hill_climbs = hill_climbs,
-          LME = FALSE,
           num_preds = num_preds,
           progress_bar = progress_bar,
           progressor = p,
@@ -357,7 +356,6 @@ optim_lm <- function(
        N = N,
        error_function = error_function,
        hill_climbs = hill_climbs,
-       LME = FALSE,
        num_preds = num_preds,
        progress_bar = progress_bar,
        progressor = NULL,
@@ -397,6 +395,6 @@ optim_lm <- function(
     track_error       = track_error,
     track_error_ratio = track_error_ratio
   )
-  class(result) <- "discourse.object"
+  class(result) <- "nds3.object"
   result
 }

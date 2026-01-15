@@ -184,7 +184,7 @@ mod_optim_aov_ui <- function(id) {
           div(style = "margin-bottom:10px;",
               actionButton(ns("run"), name_with_info(
                 "Run Optimization",
-                "Executes DISCOURSE: Data-Simulation via iterative stochastic combinatorial optimization using reported summary estimates."), class = "btn-primary")
+                "Executes nds3: Data-Simulation via iterative stochastic combinatorial optimization using reported summary estimates."), class = "btn-primary")
           ),
           div(
             id    = ns("processing_msg"),
@@ -721,7 +721,7 @@ mod_optim_aov_server <- function(id){
     })
 
     output$dl_object <- downloadHandler(
-      filename = "discourse_object.rds",
+      filename = "nds3_object.rds",
       content  = function(file) {
         req(!rv$dirty)
         ds <- selected_dataset()

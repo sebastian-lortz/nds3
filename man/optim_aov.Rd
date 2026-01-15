@@ -78,7 +78,7 @@ optim_aov(
 \item{progress_mode}{Character. Either "console" or "shiny" (or "off" internally set) for progress handler. Default `console`.}
 }
 \value{
-A `discourse.object` list containing:
+A `nds3.object` list containing:
 \describe{
   \item{best_error}{Numeric. Minimum error (RMSE) achieved.}
   \item{data}{Data frame of optimized outcome values (and grouping variables).}
@@ -88,7 +88,7 @@ A `discourse.object` list containing:
 }
 }
 \description{
-Uses the DISCOURSE algorithmic framework to simulate data that
+Uses the nds3 algorithmic framework to simulate data that
 produce target ANOVA F-statistics under a specified factorial design given input parameters.
 }
 \examples{

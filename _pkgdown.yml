@@ -1,4 +1,4 @@
-url: https://sebastian-lortz.github.io/discourse/
+url: https://sebastian-lortz.github.io/nds3/
 template:
   bootstrap: 5
 
@@ -13,6 +13,6 @@ navbar:
       - articles
 
 articles:
-  - title: "Application in R"
+  - title: "nds3_application"
     contents:
-      - "discourse_application"
+      - "nds3_application"

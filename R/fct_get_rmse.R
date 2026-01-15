@@ -1,15 +1,15 @@
-#' Compute RMSE for a single discourse.object result
+#' Compute RMSE for a single nds3.object result
 #'
-#' Calculates root-mean-square error (RMSE) metrics for a single `discourse.object` output,
+#' Calculates root-mean-square error (RMSE) metrics for a single `nds3.object` output,
 #' comparing model estimates of the simulated data against original target inputs.
 #'
-#' @param result A `discourse.object` produced by analysis functions (e.g., `optim_vec`, `optim_aov()`, `optim_lm()`, `optim()`).
+#' @param result A `nds3.object` produced by analysis functions (e.g., `optim_vec`, `optim_aov()`, `optim_lm()`, `optim()`).
 #'
 #' @return A named `list` of RMSE values. Possible elements:
 #' \describe{
-#'   \item{rmse_cor}{Numeric. RMSE of correlation estimates for LM- and LME-based objects.}
-#'   \item{rmse_reg}{Numeric. RMSE of regression coefficient estimates for LM- and LME-based objects.}
-#'   \item{rmse_se}{Numeric. RMSE of standard error estimates for LM- and LME-based objects.}
+#'   \item{rmse_cor}{Numeric. RMSE of correlation estimates for LM-based objects.}
+#'   \item{rmse_reg}{Numeric. RMSE of regression coefficient estimates for LM-based objects.}
+#'   \item{rmse_se}{Numeric. RMSE of standard error estimates for LM-based objects.}
 #'   \item{rmse_F}{Numeric. RMSE of F-values for ANOVA-based objects.}
 #'   \item{rmse_mean}{Numeric. RMSE of means for vector-based objects.}
 #'   \item{rmse_sd}{Numeric. RMSE of standard deviations for vector-based objects.}
@@ -23,10 +23,10 @@
 #'}
 #' @export
 get_rmse <- function(result) {
-  if (!inherits(result, "discourse.object")) {
-    stop("Input must be a discourse.object.")
+  if (!inherits(result, "nds3.object")) {
+    stop("Input must be a nds3.object.")
   }
-  # lm and lme module
+  # lm module
   if (!is.null(result$inputs$target_reg)) {
     tc <- result$inputs$target_cor;  tr <- result$inputs$target_reg;  ts <- result$inputs$target_se
     dc <- max(count_decimals(tc));  dr <- max(count_decimals(tr))

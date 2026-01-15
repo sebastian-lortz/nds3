@@ -1,9 +1,9 @@
-#' Plot Error Ratio Evolution for a discourse.object
+#' Plot Error Ratio Evolution for a nds3.object
 #'
 #' Creates a plot of error versus iteration, to assess the trajectory of the
-#' objective function value of a `discourse.object`.
+#' objective function value of a `nds3.object`.
 #'
-#' @param discourse_obj A `discourse.object` S3 object produced by `optim_*` functions,
+#' @param nds3_obj A `nds3.object` S3 object produced by `optim_*` functions,
 #'   containing a `track_error` element (numeric vector or list of vectors).
 #' @param run Integer. Index of the run to plot when `track_error` is a list; default `1`.
 #' @param show_best Logical. If `TRUE`, adds a point marking the minimum error; default `TRUE`.
@@ -14,13 +14,13 @@
 #'
 #' @examples
 #'  \dontrun{
-#' result <- optim_lme(args = ..., ...)
+#' result <- optim_lm(args = ..., ...)
 #' plot_error(result, first_iter = 500)
 #' }
 #' @importFrom rlang .data
 #' @import ggplot2
 #' @export
-plot_error <- function(discourse_obj, run = 1, show_best = TRUE, first_iter = 1) {
+plot_error <- function(nds3_obj, run = 1, show_best = TRUE, first_iter = 1) {
 
   if (!requireNamespace("ggplot2", quietly=TRUE)) {
     stop("`ggplot2` is needed to plot summaries; please install it.")
@@ -38,16 +38,16 @@ if (run<1) {
       )
 
   # input check
-  if (!inherits(discourse_obj, "discourse.object")) {
-    stop("Input must be a .discourse object.")
+  if (!inherits(nds3_obj, "nds3.object")) {
+    stop("Input must be a .nds3 object.")
   }
-  if (is.null(discourse_obj$track_error)) {
+  if (is.null(nds3_obj$track_error)) {
     return(NULL)
     stop(sprintf("No track_error element found. PSO routines in the Descriptives module do not have a track_error element."))
   }
 
   # data
-  err_data <- discourse_obj$track_error
+  err_data <- nds3_obj$track_error
   if (is.list(err_data)) {
     n_runs <- length(err_data)
     if (run < 1 || run > n_runs) {

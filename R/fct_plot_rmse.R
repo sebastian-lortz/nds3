@@ -1,9 +1,9 @@
-#' Plot RMSE Comparison for discourse.object runs
+#' Plot RMSE Comparison for nds3.object runs
 #'
 #' Visualizes the root-mean-square error (RMSE) distributions for between-run variability
-#' versus deviations from target values across multiple `discourse.object` runs (e.g. parallel_aov()).
+#' versus deviations from target values across multiple `nds3.object` runs (e.g. parallel_aov()).
 #'
-#' @param object_list A `discourse.object` or list thereof, typically output from `optim_*` functions.
+#' @param object_list A `nds3.object` or list thereof, typically output from `optim_*` functions.
 #'
 #' @return A `ggplot2` object.
 #'
@@ -19,8 +19,8 @@ plot_rmse <- function(object_list) {
 
   # input check
   if (!is.list(object_list)) object_list <- list(object_list)
-  if (!all(sapply(object_list, function(x) is.list(x) && inherits(x, "discourse.object")))) {
-    stop("object_list must be a list of objects of class 'discourse.object'.")
+  if (!all(sapply(object_list, function(x) is.list(x) && inherits(x, "nds3.object")))) {
+    stop("object_list must be a list of objects of class 'nds3.object'.")
   }
   if (!requireNamespace("ggplot2", quietly=TRUE)) {
     stop("`ggplot2` is needed to plot summaries; please install it.")

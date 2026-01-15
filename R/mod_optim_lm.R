@@ -172,7 +172,7 @@ mod_optim_lm_ui <- function(id) {
             div(style = "margin-bottom:10px;",
                 actionButton(ns("run"), name_with_info(
                   "Run Optimization",
-                  "Executes DISCOURSE: Data-Simulation via iterative stochastic combinatorial optimization using reported summary estimates."), class = "btn-primary")
+                  "Executes nds3: Data-Simulation via iterative stochastic combinatorial optimization using reported summary estimates."), class = "btn-primary")
             ),
             div(
               id    = ns("processing_msg"),
@@ -261,8 +261,7 @@ mod_optim_lm_server <- function(id, root_session){
       } else {
         tagList(
           tags$p("No simulated data found."),
-          tags$p("Run the Descriptives module with LME-format data."),
-          tags$p("Use [var]_[time.idx] for repeated-measure variable names.")
+          tags$p("Run the Descriptives module with LM-format data."),
         )
       }
     })
@@ -716,7 +715,7 @@ mod_optim_lm_server <- function(id, root_session){
     observeEvent(input$download, {
       showModal(modalDialog(
         title = "Download",
-        downloadButton(ns("dl_object"), "Full discourse.object"),
+        downloadButton(ns("dl_object"), "Full nds3.object"),
         downloadButton(ns("dl_data"),   "Data as CSV"),
         easyClose = TRUE
       ))
@@ -813,7 +812,7 @@ mod_optim_lm_server <- function(id, root_session){
     })
 
     output$dl_object <- downloadHandler(
-      filename = "discourse_object.rds",
+      filename = "nds3_object.rds",
       content = function(file) {
         req(!rv$dirty)
         ds <- selected_dataset()

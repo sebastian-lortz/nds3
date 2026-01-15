@@ -14,31 +14,31 @@ app_ui <- function(request) {
       navbarPage(
         title = tags$img(
           src    = "www/logo.png",
-          alt    = "DISCOURSE",
+          alt    = "nds3",
           height = "30px",
           style  = "margin-top:-5px;"
         ),
         id = "main",
-        windowTitle = "DISCOURSE",
+        windowTitle = "nds3",
 
         # Home
         tabPanel(
           title = "Home",
           fluidRow(
             column(width = 12,
-                   h1("Welcome to the DISCOURSE App"),
+                   h1("Welcome to the nds3 App"),
                    p(HTML(
-                     "I introduce the DISCOURSE framework - <strong>D</strong>ata-simulation via <strong>I</strong>terative <strong>S</strong>tochastic <strong>C</strong>ombinatorial <strong>O</strong>ptimization <strong>U</strong>sing <strong>R</strong>eported <strong>S</strong>ummary <strong>E</strong>stimates. This algorithmic framework reconstructs complete datasets using only summary statistics, giving researchers a way - when raw data are unavailable - to inform replication-study decision-making."
+                     "I introduce the nds3 framework - <strong>D</strong>ata-simulation via <strong>I</strong>terative <strong>S</strong>tochastic <strong>C</strong>ombinatorial <strong>O</strong>ptimization <strong>U</strong>sing <strong>R</strong>eported <strong>S</strong>ummary <strong>E</strong>stimates. This algorithmic framework reconstructs complete datasets using only summary statistics, giving researchers a way - when raw data are unavailable - to inform replication-study decision-making."
                    )),
                    h3("Purpose and Scope"),
-                   p("The primary objective of DISCOURSE is to simulate an entire data set based solely on the available summary statistics."),
+                   p("The primary objective of nds3 is to simulate an entire data set based solely on the available summary statistics."),
                    tags$ul(
                      tags$li(strong("Iterative:"), " The algorithm employs a cyclical process that continuously refines the simulated data."),
                      tags$li(strong("Stochastic:"), " The method incorporates random sampling techniques to explore the data space effectively."),
-                     tags$li(strong("Combinatorial:"), " By transforming a high dimensional infinite search space into a finite optimization problem, DISCOURSE efficiently navigates potential data arrangements.")
+                     tags$li(strong("Combinatorial:"), " By transforming a high dimensional infinite search space into a finite optimization problem, nds3 efficiently navigates potential data arrangements.")
                    ),
                    h3("Modular Structure"),
-                   p("The DISCOURSE framework is composed of four interchangeable optimization modules tailored to different data structures and statistical models, each following a similar high-level workflow. Modules are organized by data dimensionality: in the univariate setting, iterative adjustments apply to a single vector, while in the multivariate context, moves operate on an entire matrix of multiple variables. An overview is presented in Table 1 below. These modules can operate independently or sequentially, depending on the specific requirements of the optimization context."),
+                   p("The nds3 framework is composed of four interchangeable optimization modules tailored to different data structures and statistical models, each following a similar high-level workflow. Modules are organized by data dimensionality: in the univariate setting, iterative adjustments apply to a single vector, while in the multivariate context, moves operate on an entire matrix of multiple variables. An overview is presented in Table 1 below. These modules can operate independently or sequentially, depending on the specific requirements of the optimization context."),
                    div(
                      class = "table-responsive",
                      style = "max-width:800px; margin-left:0; margin-right:auto;",
@@ -65,7 +65,6 @@ app_ui <- function(request) {
                          ),
                          tags$tr(
                            tags$td(HTML("ANOVA (<code>optim_aov()</code>)")),
-                           tags$td(HTML("LME (<code>optim_lme()</code>)"))
                          )
                        )
                      )
@@ -111,7 +110,6 @@ app_ui <- function(request) {
           tabPanel(title = "Descriptives", mod_optim_vec_ui("optim_vec")),
           tabPanel(title = "ANOVA", mod_optim_aov_ui("optim_aov")),
           tabPanel(title = "Linear Regression", mod_optim_lm_ui("optim_lm")),
-          tabPanel(title = "Mixed-Effect Linear Regression", mod_optim_lme_ui("optim_lme"))
         ),
         # About
         tabPanel("About",
@@ -142,7 +140,7 @@ golem_add_external_resources <- function() {
     favicon(),
     bundle_resources(
       path = app_sys("app/www"),
-      app_title = "DISCOURSE"
+      app_title = "nds3"
     )
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()

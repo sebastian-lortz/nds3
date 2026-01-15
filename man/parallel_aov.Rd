@@ -81,7 +81,7 @@ parallel_aov(
 \item{progress_mode}{Character. Either "console" or "shiny" for progress handler. Default `console`.}
 }
 \value{
-A list of multiple `discourse.object`s, each containing:
+A list of multiple `nds3.object`s, each containing:
 \describe{
   \item{best_error}{Numeric. Minimum error (RMSE) achieved.}
   \item{data}{Data frame of optimized outcome values (and grouping variables).}
@@ -91,7 +91,7 @@ A list of multiple `discourse.object`s, each containing:
 }
 }
 \description{
-Uses the DISCOURSE algorithmic framework to simulate multiple data sets that
+Uses the nds3 algorithmic framework to simulate multiple data sets that
 produce target ANOVA F-statistics under a specified factorial design given input parameters.
 }
 \examples{

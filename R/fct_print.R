@@ -1,21 +1,21 @@
-#' Print summary for summary.discourse.object
+#' Print summary for summary.nds3.object
 #'
-#' A minimal S3 print method for objects of class `summary.discourse.object`, providing
+#' A minimal S3 print method for objects of class `summary.nds3.object`, providing
 #' optimization diagnostics and summary statistics in the console.
 #'
-#' @param x A `summary.discourse.object` produced by `summary.discourse.object`.
+#' @param x A `summary.nds3.object` produced by `summary.nds3.object`.
 #' @param ... Unused. Additional arguments are ignored.
 #'
 #' @return Invisibly returns the input object `x` after printing its summary.
 #'
-#' @method print summary.discourse.object
-#' @exportS3Method print summary.discourse.object
-print.summary.discourse.object <- function(x, ...) {
-  cat("DISCOURSE Object Summary\n")
+#' @method print summary.nds3.object
+#' @exportS3Method print summary.nds3.object
+print.summary.nds3.object <- function(x, ...) {
+  cat("nds3 Object Summary\n")
   cat("-------------------------------------------------\n\n")
   if (!is.null(x$inputs$reg_equation)) {
 
-    # lm and lme module
+    # lm module
     cat("Achieved Loss of Optimization: ", x$best_error, "\n\n")
     cat("RMSE of Summary Statistics\n")
     cat("  Correlations:            ", x$rmse$rmse_cor, "\n")

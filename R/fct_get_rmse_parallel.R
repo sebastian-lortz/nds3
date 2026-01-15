@@ -1,9 +1,9 @@
-#' Compute RMSE metrics across discourse.object runs
+#' Compute RMSE metrics across nds3.object runs
 #'
 #' Calculates root-mean-square error (RMSE) metrics for both between-run variability and deviations
-#' from specified target values across one or more `discourse.object` results.
+#' from specified target values across one or more `nds3.object` results.
 #'
-#' @param object_list A `discourse.object` or list thereof. Objects produced by analysis functions such as `parallel_aov()`, `parallel_lm()`, `parallel_lme()`.
+#' @param object_list A `nds3.object` or list thereof. Objects produced by analysis functions such as `parallel_aov()`, `parallel_lm()`.
 #'
 #' @return A list with components:
 #' \describe{
@@ -27,12 +27,12 @@
 get_rmse_parallel <- function(object_list) {
   # input checks
   if (!is.list(object_list)) object_list <- list(object_list)
-  if (!all(sapply(object_list, function(x) is.list(x) && inherits(x, "discourse.object")))) {
-    stop("object_list must be a list of objects of class 'discourse.object'.")
+  if (!all(sapply(object_list, function(x) is.list(x) && inherits(x, "nds3.object")))) {
+    stop("object_list must be a list of objects of class 'nds3.object'.")
   }
   first_obj <- object_list[[1]]
 
-  # LM and LME module
+  # LM module
   if (!is.null(first_obj$inputs$target_reg)) {
     opt_metrics <- lapply(object_list, get_stats)
     n_runs      <- length(opt_metrics)

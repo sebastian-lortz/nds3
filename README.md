@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# DISCOURSE <a href="https://sebastian-lortz.github.io/discourse/"><img src="man/figures/logo-comp.png" align="right" height="150" alt-text="DISCOURSE logo"/></a>
+# nds3 <a href="https://sebastian-lortz.github.io/nds3/"><img src="man/figures/logo-comp.png" align="right" height="150" alt-text="nds3 logo"/></a>
 
 <!-- badges:start -->
 
@@ -9,12 +9,8 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges:end -->
 
-I introduce the DISCOURSE framework – Data-simulation via Iterative
-Stochastic Combinatorial Optimization Using Reported Summary Estimates.
-The primary scope of the algorithmic framework is to reconstruct
-complete datasets using only summary statistics, giving researchers a
-way - when raw data are unavailable - to conduct follow-up analyses and
-inform replication study decision‑making.
+We introduce the NDS3 framework: Nonparametric Data Simulation from
+Summary Statistics.
 
 ## Usage
 
@@ -22,28 +18,27 @@ The method is available as R package and comprehensive ShinyApp.
 
 ### Web App
 
-You can use the app at
-<https://sebastian-lortz.shinyapps.io/discourse/>. Expect longer
-computation time compared to running the app locally.
+You can use the app at <https://sebastian-lortz.shinyapps.io/nds3/>.
+Expect longer computation time compared to running the app locally.
 
 ### System Requirements
 
-The `discourse` package was build under R Version 4.4.2 using Apple
-clang version 16.0.0 (clang-1600.0.26.6) and GNU Fortran (GCC) 14.2.0.
-To compile R from source, install the appropriate toolchain  
+The `nds3` package was build under R Version 4.4.2 using Apple clang
+version 16.0.0 (clang-1600.0.26.6) and GNU Fortran (GCC) 14.2.0. To
+compile R from source, install the appropriate toolchain  
 - macOS: see <https://mac.r-project.org/tools/>  
 - windows: see <https://cran.r-project.org/bin/windows/Rtools/>
 
 ### Installation
 
-You can install the latest version of the R package `discourse` like so:
+You can install the latest version of the R package `nds3` like so:
 
 ``` r
 # install devtools if needed
 if (!requireNamespace("devtools")) {install.packages("devtools")}
 
 # install from GitHub
-devtools::install_github("sebastian-lortz/discourse")
+devtools::install_github("sebastian-lortz/nds3")
 ```
 
 ### Run
@@ -51,27 +46,27 @@ devtools::install_github("sebastian-lortz/discourse")
 You can launch the ShinyApp locally by running:
 
 ``` r
-discourse::run_app()
+nds3::run_app()
 ```
 
 ## Citation
 
-Please cite `discourse` if you use it. To cite the software, use:
+Please cite `nds3` if you use it. To cite the software, use:
 
-Lortz SAJ (2025). *discourse: Data-simulation via Iterative Stochastic
-Combinatorial Optimization Using Reported Summary Estimates*. R package
-version 0.0.1.000, <https://sebastian-lortz.github.io/discourse/>,
-<https://github.com/sebastian-lortz/discourse>.
+Lortz SAJ (2025). *nds3: Non-Parametric Data Simulation from Summary
+Statistics*. R package version 0.0.1.000,
+<https://sebastian-lortz.github.io/nds3/>,
+<https://github.com/sebastian-lortz/nds3>.
 
 Or copy the reference information to your BibTeX file:
 
 ``` bibtex
-@Manual{discourse,
-  title        = {discourse: Data‐simulation via Iterative Stochastic Combinatorial Optimization Using Reported Summary Estimates},
+@Manual{nds3,
+  title        = {nds3: Non-Parametric Data Simulation from Summary Statistics},
   author       = {S. A. J. Lortz},
-  year         = {2025},
+  year         = {2026},
   note         = {R package version 0.0.1.000},
-  url          = {https://github.com/sebastian-lortz/discourse}
+  url          = {https://github.com/sebastian-lortz/nds3}
 }
 ```
 
@@ -84,4 +79,4 @@ Conduct.
 
 You are reading the doc about version: 0.0.1.000
 
-This README has been compiled on 2025-06-30 00:32:01.
+This README has been compiled on 2026-01-15 15:24:21.

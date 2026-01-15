@@ -70,7 +70,7 @@ or per-variable bounds as a two-row matrix matching `target_mean`.}
 \item{progress_mode}{Character. Either "console" or "shiny" for progress handler. Default `console`.}
 }
 \value{
-A `discourse.object` list containing:
+A `nds3.object` list containing:
 \describe{ A list with the following elements for each variable:
     \item{best_error}{Numeric. Minimum objective error achieved.}
     \item{data}{Data.frame or matrix of optimized vectors (columns named by `target_mean`).}
@@ -80,7 +80,7 @@ A `discourse.object` list containing:
 }
 }
 \description{
-Uses the DISCOURSE algorithmic framework to simulate one or multiple
+Uses the nds3 algorithmic framework to simulate one or multiple
 vectors so that each matches specified target means and standard deviations under given input parameters.
 }
 \examples{

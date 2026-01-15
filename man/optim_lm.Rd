@@ -57,7 +57,7 @@ optim_lm(
 \item{progress_mode}{Character. Either "console" or "shiny" (or "off" internally set) for progress handler. Default `console`.}
 }
 \value{
-A `discourse.object` list containing:
+A `nds3.object` list containing:
 \describe{
   \item{best_error}{Numeric. Minimum objective error achieved.}
   \item{data}{Data frame of optimized predictor and outcome values.}
@@ -67,7 +67,7 @@ A `discourse.object` list containing:
 }
 }
 \description{
-Uses the DISCOURSE algorithmic framework to simulate
+Uses the nds3 algorithmic framework to simulate
 data such that the resulting correlations and regression coefficients
 match specified targets under a given regression model and input parameters.
 }
