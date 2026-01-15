@@ -1,6 +1,5 @@
 Package: nds3
-Title: Data-simulation via Iterative Stochastic Combinatorial Optimization
-    Using Reported Summary Estimates
+Title: Non-Parametric Data Simulation from Summary Statistics
 Version: 0.0.1.000
 Date: 2025-06-27
 Authors@R:
@@ -11,10 +10,8 @@ Authors@R:
       role    = c("aut", "cre"),
       comment = c(ORCID = "0009-0007-0281-7996")
     )
-Description: I introduce DISCOURSE – this algorithmic
-    framework is designed to reconstruct complete data sets solely from
-    summary statistics.  It provides researchers with a tool to follow-up
-    analyses even when raw data are unavailable.
+Description: We introduce the NDS3 framework: Nonparametric Data Simulation from Summary Statistics.
+The primary scope of this algorithmic framework is to simulate complete datasets using only summary statistics, giving researchers a way to generate plausible sample data when original data are unavailable.
 License: MIT + file LICENSE
 URL: https://github.com/sebastian-lortz/discourse, https://sebastian-lortz.github.io/discourse/
 BugReports: https://github.com/sebastian-lortz/discourse/issues
@@ -28,7 +25,7 @@ Imports:
     emmeans,
     future,
     future.apply,
-    ggplot2,
+    ggplot2, 
     golem,
     htmltools,
     lme4,
