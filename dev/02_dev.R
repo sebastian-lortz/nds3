@@ -132,3 +132,6 @@ rmarkdown::render("/Users/lortz/Desktop/PhD/Research/simdata/nds3/inst/app/www/a
 # You're now set! ----
 # go to dev/03_deploy.R
 rstudioapi::navigateToFile("dev/03_deploy.R")
+
+install.packages("renv")
+renv::install(c("Rcpp", "RcppArmadillo"))

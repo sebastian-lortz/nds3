@@ -62,7 +62,7 @@ mod_optim_vec_ui <- function(id) {
                   "Data Format",
                   "The module you would like to optimize the data for."
                 ),
-                choices  = c("LM (long format)" = "lm",
+                choices  = c("LM (long format)" = "lm"),
                 selected = "LM (long format)",
                 width    = "100%"
               ),
@@ -157,7 +157,6 @@ mod_optim_vec_ui <- function(id) {
             ),
 
             div(style = "overflow:visible; margin-top:20px;", uiOutput(ns("main_output")))
-        )
         )
     )
   )

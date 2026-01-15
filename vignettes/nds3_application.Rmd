@@ -224,7 +224,6 @@ reg_equation <- "Fatigue ~ Apnea.1 + Apnea.2 + Depression"
 I subsequently estimated the weights 
 ```{r weight lm}
 result.weight.lm <- weights_est(
-  module = "lm",
   sim_runs = 1,
   sim_data = sim_data,
   reg_equation = reg_equation,
