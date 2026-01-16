@@ -20,7 +20,6 @@ parallel_lm(
   init_temp = 1,
   cooling_rate = NULL,
   tolerance = 1e-06,
-  prob_global_move = 0.1,
   max_starts = 1,
   hill_climbs = NULL,
   min_decimals = 1,
@@ -86,11 +85,6 @@ parallel_lm(
 
   Numeric. Error tolerance for convergence; stops early if best error \<
   \`tolerance\`. Default \`1e-6\`.
-
-- prob_global_move:
-
-  Numeric (0–1). Probability of a global shuffle move vs. local swap.
-  Default \`0.1\`.
 
 - max_starts:
 

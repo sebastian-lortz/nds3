@@ -55,7 +55,6 @@ match specified targets under a given regression model and input parameters.</p>
 <span>  init_temp <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  cooling_rate <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  tolerance <span class="op">=</span> <span class="fl">1e-06</span>,</span>
-<span>  prob_global_move <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  progress_bar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  max_starts <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  hill_climbs <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -106,10 +105,6 @@ match specified targets under a given regression model and input parameters.</p>
 
 <dt id="arg-tolerance">tolerance<a class="anchor" aria-label="anchor" href="#arg-tolerance"></a></dt>
 <dd><p>Numeric. Error tolerance for convergence; stops early if best error &lt; `tolerance`. Default `1e-6`.</p></dd>
-
-
-<dt id="arg-prob-global-move">prob_global_move<a class="anchor" aria-label="anchor" href="#arg-prob-global-move"></a></dt>
-<dd><p>Numeric (0–1). Probability of a global shuffle move vs. local swap. Default `0.1`.</p></dd>
 
 
 <dt id="arg-progress-bar">progress_bar<a class="anchor" aria-label="anchor" href="#arg-progress-bar"></a></dt>
