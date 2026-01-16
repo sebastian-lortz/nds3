@@ -15,7 +15,6 @@ optim_lm(
   init_temp = 1,
   cooling_rate = NULL,
   tolerance = 1e-06,
-  prob_global_move = 0.1,
   progress_bar = TRUE,
   max_starts = 1,
   hill_climbs = NULL,
@@ -43,8 +42,6 @@ optim_lm(
 \item{cooling_rate}{Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.}
 
 \item{tolerance}{Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-6`.}
-
-\item{prob_global_move}{Numeric (0–1). Probability of a global shuffle move vs. local swap. Default `0.1`.}
 
 \item{progress_bar}{Logical. Show text progress bar during optimization. Default `TRUE`.}
 

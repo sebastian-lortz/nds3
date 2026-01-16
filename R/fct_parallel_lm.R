@@ -16,7 +16,6 @@
 #' @param init_temp Numeric. Initial temperature for annealing. Default `1`.
 #' @param cooling_rate Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.
 #' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-6`.
-#' @param prob_global_move Numeric (0–1). Probability of a global shuffle move vs. local swap. Default `0.1`.
 #' @param max_starts Integer. Number of annealing restarts. Default `1`.
 #' @param hill_climbs Integer or NULL. Number of hill‐climbing iterations for optional local refinement; if NULL, skips refinement. Default `NULL`.
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
@@ -59,7 +58,6 @@ parallel_lm <- function(
     init_temp = 1,
     cooling_rate = NULL,
     tolerance = 1e-6,
-    prob_global_move = 0.1,
     max_starts = 1,
     hill_climbs = NULL,
     min_decimals = 1,
@@ -114,10 +112,6 @@ parallel_lm <- function(
   }
   if (!is.numeric(tolerance) || length(tolerance) != 1 || tolerance < 0) {
     stop("`tolerance` must be a single non-negative numeric value.")
-  }
-  if (!is.numeric(prob_global_move) || length(prob_global_move) != 1 ||
-      prob_global_move < 0 || prob_global_move > 1) {
-    stop("`prob_global_move` must be a single numeric between 0 and 1.")
   }
   if (!is.numeric(max_starts) || length(max_starts) != 1 || max_starts < 1) {
     stop("`max_starts` must be a single positive integer.")
@@ -176,7 +170,6 @@ parallel_lm <- function(
               init_temp        = init_temp,
               cooling_rate     = cooling_rate,
               tolerance         = tolerance,
-              prob_global_move = prob_global_move,
               max_starts       = max_starts,
               hill_climbs      = hill_climbs,
               progress_bar     = FALSE,

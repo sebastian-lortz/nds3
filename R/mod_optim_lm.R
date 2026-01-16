@@ -508,7 +508,6 @@ mod_optim_lm_server <- function(id, root_session){
       }
       withProgress(message = "Running optimization...", value = 0, {
       w_list <- weights_est(
-        module = "lm",
         sim_runs = 1,
         sim_data       = sim_data,
         target_cor     = target_cor,

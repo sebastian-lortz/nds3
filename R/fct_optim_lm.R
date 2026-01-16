@@ -14,7 +14,6 @@
 #' @param init_temp Numeric. Initial temperature for annealing. Default `1`.
 #' @param cooling_rate Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.
 #' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-6`.
-#' @param prob_global_move Numeric (0–1). Probability of a global shuffle move vs. local swap. Default `0.1`.
 #' @param progress_bar Logical. Show text progress bar during optimization. Default `TRUE`.
 #' @param max_starts Integer. Number of annealing restarts. Default `1`.
 #' @param hill_climbs Integer or NULL. Number of hill‐climbing iterations for optional local refinement; if NULL, skips refinement. Default `NULL`.
@@ -54,7 +53,6 @@ optim_lm <- function(
     init_temp = 1,
     cooling_rate = NULL,
     tolerance = 1e-6,
-    prob_global_move = 0.1,
     progress_bar = TRUE,
     max_starts = 1,
     hill_climbs = NULL,
@@ -108,10 +106,6 @@ optim_lm <- function(
   }
   if (!is.numeric(tolerance) || length(tolerance) != 1 || tolerance < 0) {
     stop("`tolerance` must be a single non-negative numeric value.")
-  }
-  if (!is.numeric(prob_global_move) || length(prob_global_move) != 1 ||
-      prob_global_move < 0 || prob_global_move > 1) {
-    stop("`prob_global_move` must be a single numeric between 0 and 1.")
   }
   if (!is.logical(progress_bar) || length(progress_bar) != 1) {
     stop("`progress_bar` must be a single logical value.")
@@ -240,14 +234,11 @@ optim_lm <- function(
         best_ratio     <- initial$error_ratio
         for (iter in seq_len(max_iter)) {
           candidate <- current_candidate
-          if (stats::runif(1) < prob_global_move) {
-            perm      <- sample(N)
-            candidate <- candidate[perm, ]
-          } else {
+
             col_idx <- sample(num_preds, 1)
             idx     <- sample(N, 2)
             candidate[idx, col_idx] <- candidate[rev(idx), col_idx]
-          }
+
           err <- error_function(candidate)
           if (err$total_error < current_error ||
               stats::runif(1) < exp((current_error - err$total_error) / temp)) {
@@ -385,7 +376,6 @@ optim_lm <- function(
       init_temp = init_temp,
       cooling_rate = cooling_rate,
       tolerance = tolerance,
-      prob_global_move = prob_global_move,
       max_starts = max_starts,
       hill_climbs = hill_climbs,
       min_decimals = min_decimals,

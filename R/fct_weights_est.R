@@ -15,7 +15,6 @@
 #' @param init_temp Numeric. Initial temperature for annealing. Default `1`.
 #' @param cooling_rate Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.
 #' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-6`.
-#' @param prob_global_move Numeric (0–1). Probability of a global shuffle move vs. local swap. Default `0.1`.
 #' @param progress_bar Logical. Show text progress bar during optimization. Default `TRUE`.
 #' @param max_starts Integer. Number of annealing restarts. Default `1`.
 #' @param parallel_start Number of independent runs (parallel or sequential) to simulate the weights.
@@ -58,7 +57,6 @@ weights_est <- function(
                         init_temp = 1,
                         cooling_rate = NULL,
                         tolerance = 1e-6,
-                        prob_global_move = 0.05,
                         progress_bar = TRUE,
                         weight = c(1, 1),
                         pool_range = 10,
@@ -104,7 +102,6 @@ weights_est <- function(
           init_temp        = init_temp,
           cooling_rate     = cooling_rate,
           tolerance              = tolerance,
-          prob_global_move = prob_global_move,
           progress_bar     = progress_bar,
           max_starts       = max_starts,
           hill_climbs      = NULL,
@@ -125,7 +122,6 @@ weights_est <- function(
           init_temp            = init_temp,
           cooling_rate         = cooling_rate,
           tolerance                  = tolerance,
-          prob_global_move     = prob_global_move,
           max_starts           = max_starts,
           parallel_start       = parallel_start,
           hill_climbs          = NULL,
