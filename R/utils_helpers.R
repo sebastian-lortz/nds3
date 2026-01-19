@@ -147,10 +147,10 @@ heuristic_move_cont <- function(candidate, target_sd, range) {
 
   max_dec <- candidate[i_dec] - lower_bound
   max_inc <- upper_bound - candidate[i_inc]
-  max_delta <- min(max_dec, max_inc)
+  max_delta <- min(max_dec, max_inc, target_sd)
   if (max_delta <= 0) return(candidate)
 
-  delta <- runif(1, min = 0, max = min(max_delta, target_sd)) # continuous
+  delta <- runif(1, min = 0, max = max_delta) # continuous
   candidate[i_dec] <- candidate[i_dec] - delta
   candidate[i_inc] <- candidate[i_inc] + delta
 

@@ -287,14 +287,14 @@ optim_lm <- function(
  handlers = handler
  )
  } else {
-   for (start in seq_len(max_starts)) {
+   for (s in seq_len(max_starts)) {
      if (progress_bar) {
        pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)
        on.exit(close(pb), add = TRUE)
      }
      track_error       <- numeric(max_iter)
      track_error_ratio <- numeric(max_iter)
-     if (start == 1) {
+     if (s == 1) {
        current_candidate <- predictors
      }
      initial <- error_function(current_candidate)
@@ -334,9 +334,9 @@ optim_lm <- function(
          break
        }
      }
-     cat("\nBest error in start", start, "is", best_error, "\n")
+     cat("\nBest error in start", s, "is", best_error, "\n")
      current_candidate <- best_candidate
-     temp <- init_temp / (2 ^ start)
+     temp <- init_temp / (2 ^ s)
    }
    if (progress_bar) {close(pb)}
    # hill climbing optimization

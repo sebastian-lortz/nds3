@@ -161,7 +161,7 @@ optim_vec <- function(
       track_error   <- numeric(max_iter)
       temp          <- init_temp
       if (range[1] != range[2]) {
-      for (start in seq_len(max_starts)) {
+      for (s in seq_len(max_starts)) {
         if (progress_bar) {
           pb_interval <- max(floor(max_iter / 100), 1)
           pb <- utils::txtProgressBar(min = 0, max = max_iter, style = 3)
@@ -207,6 +207,8 @@ optim_vec <- function(
         track_error <- track_error[seq_len(i)]
         x_current   <- best_solution
         if (i < max_iter) break
+        cat("\nBest error in start", s, "is", best_error, "\n")
+        temp <- init_temp / (2 ^ s)
       }
       } else {
         best_solution <- x_current
