@@ -86,7 +86,7 @@ mod_optim_vec_ui <- function(id) {
                 ns("tolerance"),
                 name_with_info(
                   "Tolerance",
-                  "The threshold for the weighted objective function value below which the optimization will stop."),
+                  "The threshold for the objective function value below which the optimization will stop."),
                 value = 1e-12,
                 min   = 0,
                 step  = 1e-12,
@@ -109,17 +109,7 @@ mod_optim_vec_ui <- function(id) {
               checkboxInput(ns("parallel"), name_with_info(
                 "Run in Parallel",
                 "Enable the algorithm to execute on a parallel backend for improved performance."), TRUE),
-              tags$hr(),
-              h5(name_with_info(
-                "Weights of Objective Function",
-                "The  weights multiplied with each term in the objective function; adjusting these values can steer the optimization toward preferred trade offs and improve performance.")),
-              div(style = "width:100%; overflow-x:auto; margin-bottom:10px",
-                  rHandsontableOutput(ns("weight_table"), width = "100%")
-              ),
-              actionButton(ns("estimate_weights"), name_with_info(
-                "Estimate Weights",
-                "Automatically compute the objective function weights from each term's initial contribution, using their means and standard deviations."), class = "btn-info btn-block")
-            )
+               ),
         ),
         div(style = "display:inline-block; vertical-align:top; margin-left:20px;",
             h4("Optimization Output"),
@@ -143,14 +133,14 @@ mod_optim_vec_ui <- function(id) {
 
             h5(name_with_info(
                 "Objective Function Value",
-                "The minimum weighted value of the objective function attained by the optimization.")),
+                "The minimum value of the objective function attained by the optimization.")),
             tableOutput(ns("best_errors")),
             fluidRow( style = "margin-bottom: 10px;",
               column(12,
                      actionButton(ns("plot_summary"),    name_with_info("Plot Summary","Plot summary differences"), class = "btn-sm"),
                      actionButton(ns("plot_error"),      name_with_info("Plot Errors","Show objective value trajectory"), class = "btn-sm"),
                      actionButton(ns("plot_cooling"),    name_with_info("Plot Cooling","Show temperature schedule"), class = "btn-sm"),
-                     actionButton(ns("get_rmse"),        name_with_info("Get RMSE","Compute unweighted RMSE"), class = "btn-sm"),
+                     actionButton(ns("get_rmse"),        name_with_info("Get RMSE","Compute RMSE"), class = "btn-sm"),
                      actionButton(ns("display_data"),    name_with_info("Display Data","Show head of simulated data"), class = "btn-sm"),
                      actionButton(ns("download"),        name_with_info("Download","Download data or full object"), class = "btn-sm")
               )
@@ -158,8 +148,8 @@ mod_optim_vec_ui <- function(id) {
 
             div(style = "overflow:visible; margin-top:20px;", uiOutput(ns("main_output")))
         )
-    )
   )
+)
 }
 
 mod_optim_vec_server <- function(id, root_session) {
@@ -214,9 +204,7 @@ mod_optim_vec_server <- function(id, root_session) {
       input$init_temp,
       input$cooling_rate,
       input$max_starts,
-      input$parallel,
-      input$weight_table,
-      input$estimate_weights)
+      input$parallel)
     }, {
       rv$dirty <- TRUE
       rv$last <- NULL
@@ -260,52 +248,6 @@ mod_optim_vec_server <- function(id, root_session) {
       )
     })
 
-    weight_df <- reactiveVal(data.frame(
-      Variable   = paste0("V", 1:5),
-      WeightMean = rep(1.00, 5),
-      WeightSD   = rep(1.00, 5),
-      stringsAsFactors = FALSE
-    ))
-
-    observeEvent(rv$params, {
-      df_p  <- rv$params
-      old_w <- weight_df()
-      new_w <- data.frame(Variable   = df_p$Variable,
-                          stringsAsFactors = FALSE)
-      new_w <- merge(new_w, old_w, by = "Variable", all.x = TRUE)
-      new_w$WeightMean[is.na(new_w$WeightMean)] <- 1
-      new_w$WeightSD  [is.na(new_w$WeightSD)]   <- 1
-      weight_df(new_w)
-    })
-
-    output$weight_table <- renderRHandsontable({
-      tbl <- rhandsontable(weight_df(), rowHeaders = NULL, width = "100%") %>%
-        hot_table(stretchH = "all") %>%
-        # set display names, but underlying keys stay the same
-        hot_col("WeightMean",  title = "Weight of Means",  format = "0.000") %>%
-        hot_col("WeightSD",    title = "Weight of SDs",    format = "0.000")
-      tbl
-    })
-
-    observeEvent(input$estimate_weights, {
-      df <- rv$params; req(df)
-      w_list <- weights_vec(
-        N           = input$N,
-        target_mean = df$Mean,
-        target_sd   = df$SD,
-        range       = rbind(df$Min, df$Max),
-        obj_weight  = c(1,1),
-        integer     = df$Integer
-      )
-      w_mat <- do.call(rbind, w_list)
-      weight_df(data.frame(
-        Variable   = df$Variable,
-        WeightMean = w_mat[,1],
-        WeightSD   = w_mat[,2],
-        stringsAsFactors = FALSE
-      ))
-    })
-
     shinyjs::disable("run")
     lapply(c("plot_error","get_rmse","plot_summary","plot_cooling","display_data","download","proceed_lm"),
            shinyjs::disable
@@ -326,7 +268,6 @@ mod_optim_vec_server <- function(id, root_session) {
       on.exit(shinyjs::hide("processing_msg"), add = TRUE)  # ensure it hides even on error
       rv$status <- "running"
       df  <- rv$params
-      wdf <- hot_to_r(input$weight_table)
       N = input$N
       tolerance = input$tolerance
       max_iter = input$max_iter
@@ -346,7 +287,7 @@ mod_optim_vec_server <- function(id, root_session) {
         max_starts = max_starts
       )
       if (!input.check) {return()}
-      for (tbl in c("param_table","weight_table")) {
+      for (tbl in c("param_table")) {
         shinyjs::runjs(
           sprintf('$("#%s .ht_master").css({"pointer-events":"none","opacity":0.5});',
                   ns(tbl))
@@ -355,7 +296,7 @@ mod_optim_vec_server <- function(id, root_session) {
       shinyjs::disable("run")
       lapply(c("N", "mod", "param_table", "add_row", "remove_row",
                "tolerance", "max_iter", "init_temp", "cooling_rate",
-               "max_starts", "parallel", "weight_table", "estimate_weights",
+               "max_starts", "parallel",
                "plot_error","get_rmse","plot_summary","plot_cooling",
                "display_data","download", "proceed_lm"),
              shinyjs::disable
@@ -372,8 +313,6 @@ mod_optim_vec_server <- function(id, root_session) {
         init_temp    = init_temp,
         cooling_rate = cooling_rate,
         max_starts   = max_starts,
-        obj_weight   = lapply(seq_len(nrow(wdf)), function(i)
-          c(wdf$WeightMean[i], wdf$WeightSD[i])),
         parallel     = input$parallel,
         progress_mode        = "shiny"
       )
@@ -383,12 +322,12 @@ mod_optim_vec_server <- function(id, root_session) {
       shinyjs::enable("run")
       lapply(c("N", "mod", "param_table", "add_row", "remove_row",
                "tolerance", "max_iter", "init_temp", "cooling_rate",
-               "max_starts", "parallel", "weight_table", "estimate_weights",
+               "max_starts", "parallel",
                "plot_error","get_rmse","plot_summary","plot_cooling",
                "display_data","download", "proceed_lm"),
              shinyjs::enable
       )
-      for (tbl in c("param_table","weight_table")) {
+      for (tbl in c("param_table")) {
         shinyjs::runjs(
           sprintf('$("#%s .ht_master").css({"pointer-events":"auto","opacity":1});',
                   ns(tbl))

@@ -13,8 +13,8 @@ candidate_reg_cpp_se <- function(candidate, y, positions) {
     .Call(`_nds3_candidate_reg_cpp_se`, candidate, y, positions)
 }
 
-objective_cpp <- function(x, target_mean, target_sd, obj_weight, eps, mean_dec, sd_dec) {
-    .Call(`_nds3_objective_cpp`, x, target_mean, target_sd, obj_weight, eps, mean_dec, sd_dec)
+objective_cpp <- function(x, target_mean, target_sd, eps, mean_dec, sd_dec) {
+    .Call(`_nds3_objective_cpp`, x, target_mean, target_sd, eps, mean_dec, sd_dec)
 }
 
 error_function_cpp <- function(candidate, outcome, target_cor, target_reg, weight, positions, cor_dec, reg_dec) {

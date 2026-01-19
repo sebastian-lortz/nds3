@@ -50,19 +50,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // objective_cpp
-double objective_cpp(NumericVector x, double target_mean, double target_sd, NumericVector obj_weight, double eps, int mean_dec, int sd_dec);
-RcppExport SEXP _nds3_objective_cpp(SEXP xSEXP, SEXP target_meanSEXP, SEXP target_sdSEXP, SEXP obj_weightSEXP, SEXP epsSEXP, SEXP mean_decSEXP, SEXP sd_decSEXP) {
+double objective_cpp(NumericVector x, double target_mean, double target_sd, double eps, int mean_dec, int sd_dec);
+RcppExport SEXP _nds3_objective_cpp(SEXP xSEXP, SEXP target_meanSEXP, SEXP target_sdSEXP, SEXP epsSEXP, SEXP mean_decSEXP, SEXP sd_decSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
     Rcpp::traits::input_parameter< double >::type target_mean(target_meanSEXP);
     Rcpp::traits::input_parameter< double >::type target_sd(target_sdSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type obj_weight(obj_weightSEXP);
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
     Rcpp::traits::input_parameter< int >::type mean_dec(mean_decSEXP);
     Rcpp::traits::input_parameter< int >::type sd_dec(sd_decSEXP);
-    rcpp_result_gen = Rcpp::wrap(objective_cpp(x, target_mean, target_sd, obj_weight, eps, mean_dec, sd_dec));
+    rcpp_result_gen = Rcpp::wrap(objective_cpp(x, target_mean, target_sd, eps, mean_dec, sd_dec));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -119,7 +118,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_nds3_candidate_cor_cpp", (DL_FUNC) &_nds3_candidate_cor_cpp, 2},
     {"_nds3_candidate_reg_cpp", (DL_FUNC) &_nds3_candidate_reg_cpp, 3},
     {"_nds3_candidate_reg_cpp_se", (DL_FUNC) &_nds3_candidate_reg_cpp_se, 3},
-    {"_nds3_objective_cpp", (DL_FUNC) &_nds3_objective_cpp, 7},
+    {"_nds3_objective_cpp", (DL_FUNC) &_nds3_objective_cpp, 6},
     {"_nds3_error_function_cpp", (DL_FUNC) &_nds3_error_function_cpp, 8},
     {"_nds3_error_function_cpp_se", (DL_FUNC) &_nds3_error_function_cpp_se, 8},
     {"_nds3_ols_from_design", (DL_FUNC) &_nds3_ols_from_design, 2},

@@ -16,9 +16,7 @@ optim_vec(
   cooling_rate = NULL,
   int.probs = NULL,
   progress_bar = TRUE,
-  obj_weight = list(c(1, 1)),
   maxit_pso = 2000,
-  eps = 1e-12,
   max_starts = 3,
   checkGrim = TRUE,
   prob_heuristic = 0.1,
@@ -51,11 +49,7 @@ or per-variable bounds as a two-row matrix matching `target_mean`.}
 
 \item{progress_bar}{Logical. Show text progress bar during optimization. Default `TRUE`.}
 
-\item{obj_weight}{List of numeric vectors length 2, one per variable. Weights for mean vs. SD error. Default `list(c(1,1))`.}
-
 \item{maxit_pso}{Integer. Maximum PSO iterations for continuous variables. Default `2000`.}
-
-\item{eps}{Numeric. Small constant to avoid division by zero in objective. Default `1e-12`.}
 
 \item{max_starts}{Integer. Number of annealing restarts. Default `3`.}
 

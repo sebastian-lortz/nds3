@@ -229,7 +229,7 @@ optim_aov <- function(
       }
     }
   } else {
-    extract_F <- function(data, effect, contrast, contrast_method, type) {
+    extract_F <- function(data, effect, type) {
       res   <- afex::aov_car(formula = formula, data = data, factorize = TRUE, type = type)
       an_tab <- res$anova_table
       rn     <- trimws(rownames(an_tab))
@@ -244,10 +244,10 @@ optim_aov <- function(
       dat    <- data.frame(ID = ID, factor_mat, outcome = x)
       comp_F <- extract_F(dat,
                           target_f_list$effect,
-                          target_f_list$contrast,
-                          target_f_list$contrast_method,
+                          #target_f_list$contrast,
+                          #target_f_list$contrast_method,
                           typeSS)
-      sqrt(mean((round(comp_F, F_dec) - target_F)^2))
+      sqrt(mean(((round(comp_F, F_dec) - target_F)/target_F)^2))
     }
   } else if (!is.null(target_f_list$contrast) || !balanced) {
     objective <- function(x) {
@@ -257,7 +257,7 @@ optim_aov <- function(
                           target_f_list$contrast,
                           target_f_list$contrast_method,
                           typeSS)
-      sqrt(mean((round(comp_F, F_dec) - target_F)^2))
+      sqrt(mean(((round(comp_F, F_dec) - target_F)/target_F)^2))
     }
   } else {
       MSE <- compute_sequential_MSE(
@@ -274,65 +274,79 @@ optim_aov <- function(
     }
   }
 
-  # heuristic move continuous data
-  max_step_cont <- (range[2]-range[1])*max_step
-  heuristic_move_cont <- function(candidate) {
-    idx <- sample(group_idx[[sample.int(length(group_idx), 1)]], 2)
-    v   <- candidate[idx]
-    d   <- c(
-      max(range[1] - v[1], v[2] - range[2]),
-      min(range[2] - v[1], v[2] - range[1])
-    )
-    if (d[1] > d[2]) return(candidate)
-    d[1] <- max(d[1], -max_step_cont)
-    d[2] <- min(d[2],  max_step_cont)
-    inc <- stats::runif(1, d[1], d[2])
-    candidate[idx] <- v + c(inc, -inc)
-    candidate
+  # aov move integer data
+  max_step_adapt <- max(1,round((range[2]-range[1])*max_step))
+  if(integer) {
+    max_step_adapt <- floor(max_step_adapt)
   }
 
-  # heuristic move integer data
-  max_step_int <- as.integer(max(1,round((range[2]-range[1])*max_step)))
-  heuristic_move_int <- function(candidate) {
-    idx <- sample(group_idx[[sample.int(length(group_idx), 1)]], 2)
-    v   <- candidate[idx]
-    d   <- c(
-      max(range[1] - v[1], v[2] - range[2]),
-      min(range[2] - v[1], v[2] - range[1])
-    )
-    if (d[1] > d[2]) return(candidate)
-    d[1] <- max(d[1], -max_step_int)
-    d[2] <- min(d[2],  max_step_int)
-    inc <- sample(seq(d[1], d[2]), 1)
-    candidate[idx] <- v + c(inc, -inc)
+  aov_move <- function(candidate, integer) {
+    lower_bound <- range[1]
+    upper_bound <- range[2]
+
+    for (g in seq_along(group_idx)) {
+      i_idx <- group_idx[[g]]
+      i_cand <- candidate[i_idx]
+
+      dec_idx <- which(i_cand > lower_bound)
+      if (!length(dec_idx)) next
+      i_dec <- sample(dec_idx, 1)
+
+      # prevent null moves by excluding i_dec
+      inc_idx <- which(i_cand < upper_bound & seq_along(i_cand) != i_dec)
+      if (!length(inc_idx)) next
+
+      i_inc <- sample(inc_idx, 1)
+
+      max_dec <- i_cand[i_dec] - lower_bound
+      max_inc <- upper_bound - i_cand[i_inc]
+      max_delta <- min(max_dec, max_inc, max_step_adapt)
+      if (max_delta < 1) next
+
+      if (integer) {
+        max_delta <- floor(max_delta)
+        delta <- sample.int(max_delta, 1)
+      } else {
+        delta <- runif(1, min = 0, max = max_delta)
+      }
+
+      i_cand[i_dec] <- i_cand[i_dec] - delta
+      i_cand[i_inc] <- i_cand[i_inc] + delta
+      # cat(delta, "\n")
+      candidate[i_idx] <- i_cand
+    }
+
     candidate
   }
-
-  # move function
-  move_fun <- if (integer) heuristic_move_int else heuristic_move_cont
 
   # init parameters
   if (integer) {
       elements   <- mapply(
-      generate_candidate_group,
+      sprite_start_vector,
       target_group_means,
       group_sizes,
       MoreArgs = list(range),
       SIMPLIFY = FALSE)
+  } else {
+    elements   <- mapply(
+      sprite_start_vector_cont,
+      target_group_means,
+      group_sizes,
+      MoreArgs = list(range),
+      SIMPLIFY = FALSE)
+  }
       current_candidate <- numeric(length(group_ids))
       for (j in seq_along(unique(group_ids))) {
         idxs <- group_idx[[unique(group_ids)[j]]]
         current_candidate[idxs] <- elements[[j]]
       }
-    } else {
-    current_candidate <- target_group_means[match(group_ids, unique(group_ids))]
-  }
+
   if (is.null(cooling_rate)) {
     cooling_rate <- (max_iter - 10) / max_iter
   }
   temp     <- init_temp
   best_candidate <- current_candidate
-  best_error <- objective(current_candidate)
+  current_error <- best_error <- objective(current_candidate)
 
   # set progressr
   if(progress_mode == "shiny") {
@@ -355,14 +369,15 @@ optim_aov <- function(
         track_error       <- numeric(max_iter)
         for (i in seq_len(max_iter)) {
           candidate <- current_candidate
-          candidate <- move_fun(candidate)
-          current_error   <- objective(candidate)
-          prob  <- exp((best_error - current_error) / temp)
-          if (current_error < best_error || stats::runif(1) < prob) {
+          candidate <- aov_move(candidate, integer = integer)
+          cand_error   <- objective(candidate)
+          prob  <- exp((current_error - cand_error) / temp)
+          if (cand_error < current_error || stats::runif(1) < prob) {
             current_candidate    <- candidate
-            if (current_error < best_error) {
-            best_error <- current_error
-            best_candidate <- current_candidate
+            current_error <- cand_error
+            if (cand_error < best_error) {
+            best_error <- cand_error
+            best_candidate <- candidate
             }
           }
           temp <- temp * cooling_rate
@@ -392,14 +407,15 @@ optim_aov <- function(
     track_error       <- numeric(max_iter)
     for (i in seq_len(max_iter)) {
       candidate <- current_candidate
-      candidate <- move_fun(candidate)
-      current_error   <- objective(candidate)
-      prob  <- exp((best_error - current_error) / temp)
-      if (current_error < best_error || stats::runif(1) < prob) {
+      candidate <- aov_move(candidate, integer = integer)
+      cand_error   <- objective(candidate)
+      prob  <- exp((current_error - cand_error) / temp)
+      if (cand_error < current_error || stats::runif(1) < prob) {
         current_candidate    <- candidate
-        if (current_error < best_error) {
-          best_error <- current_error
-          best_candidate <- current_candidate
+        current_error <- cand_error
+        if (cand_error < best_error) {
+          best_error <- cand_error
+          best_candidate <- candidate
         }
       }
       temp <- temp * cooling_rate

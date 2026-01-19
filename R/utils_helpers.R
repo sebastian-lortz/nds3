@@ -79,26 +79,78 @@ heuristic_move <- function(candidate, target_sd, range) {
 
   current_sd <- stats::sd(candidate)
   increaseSD <- (current_sd < target_sd)
+
+  dec_idx <- which(candidate > lower_bound)
+  if (!length(dec_idx)) return(candidate)
+  i_dec <- sample(dec_idx, 1)
+
+  # prevent null moves by excluding i_dec
+  inc_idx <- which(candidate < upper_bound & seq_along(candidate) != i_dec)
+  if (!length(inc_idx)) return(candidate)
+
+  ## --- minimal bidirectional adjustment ---
+  if (increaseSD) {
+    inc_try <- inc_idx[candidate[inc_idx] >= candidate[i_dec]]
+    if (length(inc_try)) inc_idx <- inc_try
+  } else {
+    inc_try <- inc_idx[candidate[inc_idx] <= candidate[i_dec]]
+    if (length(inc_try)) inc_idx <- inc_try
+  }
+  ## --------------------------------------
+
+  if (!length(inc_idx)) return(candidate)
+  i_inc <- sample(inc_idx, 1)
+
+  max_dec <- candidate[i_dec] - lower_bound
+  max_inc <- upper_bound - candidate[i_inc]
+  max_sd_step <- max(1L, floor(target_sd))
+  max_delta <- floor(min(max_dec, max_inc, max_sd_step))
+  if (max_delta < 1) return(candidate)
+
+  delta <- sample.int(max_delta, 1)
+
+  candidate[i_dec] <- candidate[i_dec] - delta
+  candidate[i_inc] <- candidate[i_inc] + delta
+
+  candidate
+}
+
+
+# heuristic move for continous data in descriptive module (based on SPRITE)
+heuristic_move_cont <- function(candidate, target_sd, range) {
+  lower_bound <- range[1]
+  upper_bound <- range[2]
+
+  current_sd <- stats::sd(candidate)
+  increaseSD <- (current_sd < target_sd)
   cand_max <- max(candidate)
 
-  dec_idx <- which(candidate > lower_bound & (!increaseSD | candidate < cand_max))
+  dec_idx <- which(candidate > lower_bound)
   if (length(dec_idx) == 0) return(candidate)
   i_dec <- sample(dec_idx, 1)
 
-  inc_idx <- which(candidate < upper_bound)
-  if (!increaseSD) {
-    inc_idx <- inc_idx[candidate[inc_idx] < candidate[i_dec]]
+  inc_idx <- which(candidate < upper_bound & seq_along(candidate) != i_dec)
+
+  ## --- minimal bidirectional adjustment ---
+  if (increaseSD) {
+    # when increasing SD: prefer incrementing something >= the decremented value (push apart)
+    inc_try <- inc_idx[candidate[inc_idx] >= candidate[i_dec]]
+    if (length(inc_try) > 0) inc_idx <- inc_try
+  } else {
+    # when decreasing SD: keep your existing restriction (pull together)
+    inc_idx <- inc_idx[candidate[inc_idx] <= candidate[i_dec]]
   }
+  ## --------------------------------------
+
   if (length(inc_idx) == 0) return(candidate)
   i_inc <- sample(inc_idx, 1)
 
   max_dec <- candidate[i_dec] - lower_bound
   max_inc <- upper_bound - candidate[i_inc]
-  max_delta <- floor(min(max_dec, max_inc))
-  if (max_delta < 1) return(candidate)
+  max_delta <- min(max_dec, max_inc)
+  if (max_delta <= 0) return(candidate)
 
-  delta <- sample.int(max_delta, 1)
-
+  delta <- runif(1, min = 0, max = min(max_delta, target_sd)) # continuous
   candidate[i_dec] <- candidate[i_dec] - delta
   candidate[i_inc] <- candidate[i_inc] + delta
 
@@ -237,7 +289,6 @@ mixed_factor_matrix <- function(sample_size, levels, factor_type, subgroup_sizes
   return(final_df)
 }
 
-
 # calculate marginal means for ANOVA design
 calcMarginalMeans <- function(factor_mat, group_means, group_sizes) {
   df <- as.data.frame(factor_mat, stringsAsFactors = FALSE)
@@ -269,6 +320,110 @@ generate_candidate_group <- function(tMean, n, range) {
   remainder <- total_points %% n
   vec <- c(rep(base + 1, remainder), rep(base, n - remainder))
   return(vec)
+}
+
+# generate integer candidate vector (taken from Sprite)
+sprite_start_vector <- function(tMean, n, range, dp = 2) {
+  scaleMin <- range[1]
+  scaleMax <- range[2]
+
+  if (scaleMin >= scaleMax) stop("range[1] must be < range[2].")
+  if (tMean < scaleMin || tMean > scaleMax) stop("Target mean is outside the allowable range.")
+  if (n < 2) stop("n must be >= 2.")
+
+  dust <- 1e-8
+
+  # --- SPRITE: GRIM-adjust mean to nearest feasible mean (then round to dp) ---
+  tMean <- round(round(tMean * n) / n, dp)
+
+  # random start around the mean, within bounds (reduces boundary pile-up)
+  half_width <- min(tMean - scaleMin, scaleMax - tMean)
+  vec <- as.integer(runif(n, min = tMean - half_width, max = tMean + half_width))
+  # --- SPRITE: adjust mean by +/-1 or +/-2 bumps until within rounding granularity ---
+  gran <- (0.1^dp) / 2 - dust
+  max_loops <- max(10000, n * (scaleMax - scaleMin + 1))
+
+  for (i in seq_len(max_loops)) {
+    cMean <- mean(vec)
+    if (abs(cMean - tMean) < gran) break
+
+    delta <- if (runif(1) < 0.2) 2 else 1 # change to 2 if fixed integer counts added
+    increaseMean <- (cMean < tMean)
+
+    if (increaseMean) {
+      can <- which(vec <= (scaleMax - delta))
+      if (!length(can) && delta == 2) { delta <- 1; can <- which(vec <= (scaleMax - 1)) }
+      if (length(can)) vec[sample(can, 1)] <- vec[sample(can, 1)] + delta
+    } else {
+      can <- which(vec >= (scaleMin + delta))
+      if (!length(can) && delta == 2) { delta <- 1; can <- which(vec >= (scaleMin + 1)) }
+      if (length(can)) vec[sample(can, 1)] <- vec[sample(can, 1)] - delta
+    }
+  }
+
+  vec
+}
+
+sprite_start_vector_cont <- function(tMean, n, range, dp = 2) {
+  scaleMin <- range[1]
+  scaleMax <- range[2]
+
+  if (scaleMin >= scaleMax) stop("range[1] must be < range[2].")
+  if (tMean < scaleMin || tMean > scaleMax) stop("Target mean is outside the allowable range.")
+  if (n < 2) stop("n must be >= 2.")
+
+  dust <- 1e-8
+
+  # random start around the mean (your design)
+  half_width <- min(tMean - scaleMin, scaleMax - tMean)
+  vec <- runif(n, min = tMean - half_width, max = tMean + half_width)
+
+  # mean granularity (mirrors SPRITE's gran definition)
+  gran <- (0.1^dp) / 2 - dust
+
+  # sensible max loops for continuous mean correction
+  W <- scaleMax - scaleMin
+  step_floor <- max(N*gran, .Machine$double.eps)
+  max_loops <- as.integer(ceiling(W * n / step_floor))*100
+
+  iter <- 0L
+  cMean <- mean(vec)
+
+  while (abs(cMean - tMean) > gran && iter < max_loops) {
+    iter <- iter + 1L
+    cMean <- mean(vec)
+    if (abs(cMean - tMean) < gran) break
+
+    if(runif(1) < .2) delta <- 2*abs(tMean - cMean) else delta <- abs(tMean - cMean)
+    increaseMean <- (cMean < tMean)
+
+    if (increaseMean) {
+      can <- which(vec <= (scaleMax - delta))
+      if (!length(can)) {
+        delta = abs(tMean - cMean)
+        can <- which(vec <= (scaleMax - delta))
+      }
+      if (length(can)) {
+        idx <- sample(can, 1)
+        vec[idx] <- vec[idx] + delta
+      }
+    } else {
+      can <- which(vec >= (scaleMin + delta))
+      if (!length(can)) {
+        delta = abs(tMean - cMean)
+        can <- which(vec >= (scaleMax + delta))
+      }
+      if (length(can)) {
+        idx <- sample(can, 1)
+        vec[idx] <- vec[idx] - delta
+      }
+    }
+  }
+
+  # If we hit the cap, we return what we have (optionally warn)
+  # if (iter >= max_loops) warning("sprite_start_vector_cont hit max_loops; mean may be slightly off.")
+
+  vec
 }
 
 
@@ -317,17 +472,6 @@ compute_sequential_SS <- function(means, sizes, uniq_factor_mat) {
   ))
 }
 
-# method of moments estiamte of random intercept var
-var_tau <- function(x, y) {
-  Y      <- x[[y]]
-  id     <- factor(x$ID)
-  n      <- length(unique(x$time))
-  aovTab <- summary(stats::aov(Y ~ id, data = x))[[1]]
-  MSB    <- aovTab["id",       "Mean Sq"]
-  MSW    <- aovTab["Residuals", "Mean Sq"]
-  tau2_mom <- (MSB - MSW) / n
-  tau2_mom
-}
 
 
 # re order the target cor according to input order

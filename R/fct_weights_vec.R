@@ -52,10 +52,9 @@ weights_vec <- function(N, target_mean, target_sd, range,
   if (!is.numeric(target_sd) || length(target_sd) != length(target_mean)) {
     stop("`target_sd` must be a numeric vector of the same length as `target_mean`.")
   }
-  if (!is.matrix(range) || nrow(range) != 2 ||
-      ncol(range) != length(target_mean) || !is.numeric(range)) {
-    stop("`range` must be a 2 x length(target_mean) numeric matrix specifying min/max for each variable.")
-  }
+  #if (ncol(range) == length(target_mean) || is.numeric(range)) {
+  #  stop("`range` must be a 2 x length(target_mean) numeric matrix specifying min/max for each variable.")
+ # }
   if (!is.numeric(obj_weight) || length(obj_weight) != 2) {
     stop("`obj_weight` must be a numeric vector of length 2 (weights for mean vs. SD errors).")
   }
@@ -138,7 +137,7 @@ weights_vec <- function(N, target_mean, target_sd, range,
       N = N,
       target_mean = target_mean[i],
       target_sd   = target_sd[i],
-      range       = range[, i],
+      range       = range,
       obj_weight  = obj_weight,
       integer     = integer[i],
       int.probs   = int.probs[[i]],

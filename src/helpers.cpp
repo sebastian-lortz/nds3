@@ -149,8 +149,6 @@ using namespace Rcpp;
 double objective_cpp(NumericVector x,
                      double target_mean,
                      double target_sd,
-                     NumericVector obj_weight,
-                     double eps,
                      int mean_dec,
                      int sd_dec) {
   int n = x.size();
@@ -171,22 +169,21 @@ double objective_cpp(NumericVector x,
   }
   double sd_x = std::sqrt(ssd / (n - 1));
 
-  // Use eps to avoid dividing by a very small number.
-  double denom_mean = std::max(std::fabs(target_mean), eps);
-  double denom_sd   = std::max(std::fabs(target_sd), eps);
-
   // Compute squared relative errors (using inline multiplication for speed).
   double diff_mean = (std::round(mean_x * std::pow(10.0, mean_dec)) / std::pow(10.0, mean_dec)) - target_mean;
   double diff_sd   = (std::round(sd_x   * std::pow(10.0, sd_dec)) / std::pow(10.0, sd_dec)) - target_sd;
 
-  double mean_error = std::sqrt((diff_mean / denom_mean) * (diff_mean / denom_mean));
-  double sd_error   = std::sqrt((diff_sd / denom_sd) * (diff_sd / denom_sd));
+  double mean_error = (diff_mean) * (diff_mean);
+  double sd_error   = (diff_sd) * (diff_sd);
 
   // Combine errors using the provided weights.
-  double total_error = mean_error * obj_weight[0] + sd_error * obj_weight[1];
+  double total_error = std::sqrt((mean_error + sd_error) / 2.0);
 
   return total_error;
 }
+
+
+
 
 
 #include <RcppArmadillo.h>

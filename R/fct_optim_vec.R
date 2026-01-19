@@ -13,14 +13,9 @@
 #' @param init_temp Numeric. Initial temperature for annealing. Default `1`.
 #' @param cooling_rate Numeric or NULL. Cooling rate per iteration (0–1); if NULL, computed as `(max_iter - 10) / max_iter`.
 #' @param tolerance Numeric. Error tolerance for convergence; stops early if best error < `tolerance`. Default `1e-8`.
-#' @param int.probs List of numeric vectors, one per variable. Sampling probabilities for integer moves; NULL for uniform.
 #' @param progress_bar Logical. Show text progress bar during optimization. Default `TRUE`.
-#' @param obj_weight List of numeric vectors length 2, one per variable. Weights for mean vs. SD error. Default `list(c(1,1))`.
-#' @param maxit_pso Integer. Maximum PSO iterations for continuous variables. Default `2000`.
-#' @param eps Numeric. Small constant to avoid division by zero in objective. Default `1e-12`.
 #' @param max_starts Integer. Number of annealing restarts. Default `3`.
 #' @param checkGrim Logical. If TRUE and `integer = TRUE`, perform GRIM checks on `target_mean`. Default is FALSE.
-#' @param prob_heuristic Numeric. Probability of heuristic move vs. random swap in integer mode. Default `0.1`.
 #' @param parallel Logical. If TRUE, optimize each variable in parallel. Default `FALSE`.
 #' @param min_decimals Integer. Minimum number of decimal places for target values (including trailing zeros). Default `1`.
 #' @param progress_mode Character. Either "console" or "shiny" for progress handler. Default `console`.
@@ -55,17 +50,12 @@ optim_vec <- function(
     range,
     integer,
     tolerance       = 1e-8,
-    max_iter        = 1e5,
+    max_iter        = 1e4,
     init_temp       = 1,
     cooling_rate    = NULL,
-    int.probs       = NULL,
     progress_bar    = TRUE,
-    obj_weight      = list(c(1, 1)),
-    maxit_pso       = 2000,
-    eps             = 1e-12,
-    max_starts      = 3,
+    max_starts      = 1,
     checkGrim       = TRUE,
-    prob_heuristic  = 0.1,
     parallel        = FALSE,
     min_decimals = 1,
     progress_mode = "console"
@@ -107,30 +97,14 @@ optim_vec <- function(
   )) {
     stop("`cooling_rate` must be a single numeric between 0 and 1, or NULL.")
   }
-  if (!is.null(int.probs) && (!is.list(int.probs) || length(int.probs) != length(target_mean))) {
-    stop("`int.probs`, if provided, must be a list of sampling-probability vectors, one per variable.")
-  }
   if (!is.logical(progress_bar) || length(progress_bar) != 1) {
     stop("`progress_bar` must be a single logical value.")
-  }
-  if (!is.list(obj_weight) || length(obj_weight) < length(target_mean) || !all(vapply(obj_weight, function(w) is.numeric(w) && length(w) == 2, logical(1)))) {
-    stop("`obj_weight` must be a list of length = number of target variables, each a numeric weight vector with two elements. You can use weights_vec() to estimate weights.")
-  }
-  if (!is.numeric(maxit_pso) || length(maxit_pso) != 1 || maxit_pso <= 0) {
-    stop("`maxit_pso` must be a single positive integer.")
-  }
-  if (!is.numeric(eps) || length(eps) != 1 || eps < 0) {
-    stop("`eps` must be a single non-negative numeric value.")
   }
   if (!is.numeric(max_starts) || length(max_starts) != 1 || max_starts < 1) {
     stop("`max_starts` must be a single positive integer.")
   }
   if (!is.logical(checkGrim) || length(checkGrim) != 1) {
     stop("`checkGrim` must be a single logical value.")
-  }
-  if (!is.numeric(prob_heuristic) || length(prob_heuristic) != 1 ||
-      prob_heuristic < 0 || prob_heuristic > 1) {
-    stop("`prob_heuristic` must be a single numeric between 0 and 1.")
   }
   if (!is.logical(parallel) || length(parallel) != 1) {
     stop("`parallel` must be a single logical value.")
@@ -142,13 +116,6 @@ optim_vec <- function(
 
   # transform input
   n_var <- length(target_mean)
-  if (is.null(int.probs)) {
-    int.probs <- vector("list", n_var)
-    int.probs <- rep(list(NULL), n_var)
-  }
-  if (length(obj_weight) < n_var) {
-    obj_weight <- rep(list(obj_weight), n_var)
-  }
   if (length(integer) < n_var) {
     integer <- rep(integer[1], n_var)
   }
@@ -156,9 +123,9 @@ optim_vec <- function(
   # Single optimizatino process
   optim_vec_single <- function(
     N, target_mean, target_sd, range, tolerance,
-    max_iter, init_temp, cooling_rate, int.probs,
-    progress_bar, obj_weight, integer, maxit_pso,
-    eps, max_starts, checkGrim, prob_heuristic
+    max_iter, init_temp, cooling_rate,
+    progress_bar, integer,
+    max_starts, checkGrim
   ) {
 
     # get decimals
@@ -175,19 +142,19 @@ optim_vec <- function(
 
     # Objective function
       objective <- function(x) {
-        objective_cpp(x, target_mean, target_sd, obj_weight, eps, mean_dec, sd_dec)
+       objective_cpp(x, target_mean = target_mean, target_sd = target_sd, mean_dec = mean_dec, sd_dec = sd_dec)
       }
 
     # Optimization Integer
-    if (integer) {
       allowed   <- seq(range[1], range[2])
       n_allowed <- length(allowed)
-      if (is.null(int.probs)) {
+
+      if (integer) {
+      x_current  <- sprite_start_vector(tMean = target_mean, n = N, dp = mean_dec, range = range)
       probs <- rep(1 / n_allowed, n_allowed)
       } else {
-        probs <- int.probs
+        x_current <- sprite_start_vector_cont(tMean = target_mean, n = N, dp = mean_dec, range = range)
       }
-      x_current     <- sample(allowed,   N, replace = TRUE, prob = probs)
       obj_current   <- objective(x_current)
       best_solution <- x_current
       best_obj      <- obj_current
@@ -201,7 +168,9 @@ optim_vec <- function(
           on.exit(close(pb), add = TRUE)
         }
         for (i in seq_len(max_iter)) {
-          candidate <- if (stats::runif(1) < prob_heuristic) {
+
+          candidate <- if (integer) {
+            if (n_allowed > 2) {
             heuristic_move(x_current, target_sd, range)
           } else {
             idx <- sample.int(N, 1)
@@ -209,6 +178,10 @@ optim_vec <- function(
             sample.idx <- allowed %in% tmp[idx]
             tmp[idx] <- sample(allowed[!sample.idx], 1, prob = probs[!sample.idx])
             tmp
+          }
+          } else {
+            # continous move
+            heuristic_move_cont(x_current, target_sd = target_sd, range = range)
           }
           obj_cand <- objective(candidate)
           acc_prob <- exp((obj_current - obj_cand) / temp)
@@ -240,33 +213,6 @@ optim_vec <- function(
         best_obj <- 0
         track_error   <- 0
       }
-    } else {
-      # Optimization continuous
-      init_par   <- stats::runif(N, range[1], range[2])
-      if (range[1] != range[2]) {
-      cat("\nPSO is running...\n")
-      pso_res <- pso::psoptim(
-        par    = init_par,
-        fn     = objective,
-        lower  = rep(range[1], N),
-        upper  = rep(range[2], N),
-        control = list(
-          maxit          = maxit_pso,
-          maxit.stagnate = maxit_pso / 3,
-          trace.stats    = TRUE,
-          abstol         = tolerance
-        )
-      )
-      cat(pso_res$message, "\n\n")
-      best_solution <- pso_res$par
-      best_obj      <- pso_res$value
-      track_error   <- pso_res$stats$error
-      } else {
-        best_solution <- init_par
-        best_obj      <- 0
-        track_error   <- 0
-      }
-    }
 
     # combine results
     list(
@@ -318,15 +264,10 @@ optim_vec <- function(
             max_iter,
             init_temp,
             cooling_rate,
-            int.probs[[i]],
             progress_bar = FALSE,
-            obj_weight[[i]],
             integer[i],
-            maxit_pso,
-            eps,
             max_starts,
-            checkGrim,
-            prob_heuristic
+            checkGrim
           )
             p()
             res
@@ -361,9 +302,9 @@ optim_vec <- function(
           for (i in seq_len(n_var)) {
             res <- optim_vec_single(
               N, target_mean[i], target_sd[i], range[, i], tolerance,
-              max_iter, init_temp, cooling_rate, int.probs[[i]],
-              progress_bar, obj_weight[[i]], integer[i], maxit_pso, eps,
-              max_starts, checkGrim, prob_heuristic
+              max_iter, init_temp, cooling_rate,
+              progress_bar, integer[i],
+              max_starts, checkGrim
             )
             solution_matrix[, i] <- res$data
             best_error_vec[[i]] <- res$best_error
@@ -386,8 +327,6 @@ optim_vec <- function(
       target_mean  = target_mean,
       target_sd    = target_sd,
       N            = N,
-      weight       = obj_weight,
-      int.probs    = int.probs,
       max_iter     = max_iter,
       init_temp    = init_temp,
       cooling_rate = cooling_rate
