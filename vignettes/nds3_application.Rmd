@@ -127,7 +127,7 @@ result.parallel.aov <- parallel_aov(
                         cooling_rate = NULL,
                         integer = FALSE,
                         checkGrim = FALSE,
-                        max_step = .1,
+                        max_step = .2,
                         min_decimals = 1)
 ```
 
@@ -154,18 +154,7 @@ range_matrix <- matrix(c(15, 0, 0, 0,
                          111, 80.9, 49, 28),
                        nrow = 2, byrow = TRUE)
 ```
-I subsequently estimated the weights 
-```{r weight vec}
-weight.vec <- weights_vec(
-  N = N, 
-  target_mean =  target_mean,
-  target_sd =  target_sd, 
-  range = range_matrix,
-  integer = integer
-)
-weight.vec
-```
-and I ran the Descriptives module with default hyperparameters.
+I ran the Descriptives module with default hyperparameters.
 ```{r result vec}
 result.vec <- optim_vec(
   N = N,
@@ -173,10 +162,9 @@ result.vec <- optim_vec(
   target_sd = target_sd,
   range = range_matrix,
   integer = integer,
-  obj_weight = weight.vec,
   tolerance = 1e-8,
   max_iter = 1e5,
-  max_starts = 3,
+  max_starts = 1,
   init_temp = 1,
   cooling_rate = NULL
 )

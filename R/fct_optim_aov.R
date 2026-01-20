@@ -274,8 +274,8 @@ optim_aov <- function(
     }
   }
 
-  # aov move integer data
-  max_step_adapt <- max(1,round((range[2]-range[1])*max_step))
+  # aov move
+  max_step_adapt <- max(1, (range[2]-range[1])*max_step)
   if(integer) {
     max_step_adapt <- floor(max_step_adapt)
   }
