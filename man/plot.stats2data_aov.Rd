@@ -4,7 +4,7 @@
 \alias{plot.stats2data_aov}
 \title{Plot target-vs-simulated statistics for an ANOVA result}
 \usage{
-\method{plot}{stats2data_aov}(x, standardised = TRUE, eps = 1e-12, ...)
+\method{plot}{stats2data_aov}(x, standardised = TRUE, eps = 0.000000000001, ...)
 }
 \arguments{
 \item{x}{An object of class \code{stats2data_aov}.}

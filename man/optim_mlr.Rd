@@ -17,7 +17,7 @@ optim_mlr(
   target_se = NULL,
   weight = c(1, 1),
   tolerance = 0.001,
-  max_iter = 1e+05,
+  max_iter = 100000,
   init_temp = NULL,
   cooling_rate = NULL,
   max_starts = 3,
