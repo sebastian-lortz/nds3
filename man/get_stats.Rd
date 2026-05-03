@@ -51,6 +51,26 @@ all runs.  The result is a named list of data frames, one per component
 each containing columns \code{mean}, \code{median}, \code{sd},
 \code{min}, and \code{max}.
 }
+\section{Cell ordering for \code{stats2data_aov}}{
+
+The vector \code{$mean} is returned in **sorted-key** cell order
+(Factor1 fastest, then Factor2, then Factor3, ...). This matches the
+order the optimiser uses internally and the order in which
+\code{target_group_means} is consumed by \code{\link{optim_aov}}. The
+returned vector is named with the cell identifier (e.g. \code{"1_1"},
+\code{"1_2"}, \code{"2_1"}, ...) so the cell each value belongs to is
+unambiguous downstream.
+}
+
+\section{Model formula}{
+
+\code{get_stats} reuses the formula stored in
+\code{result$inputs$formula} rather than reconstructing one from the
+factor names. This guarantees the model fitted here is the same as the
+one the optimiser used, eliminating drift across afex versions or design
+types (purely-within, purely-between, mixed).
+}
+
 \examples{
 \dontrun{
 res <- optim_vec(

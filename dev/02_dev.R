@@ -11,6 +11,9 @@
 #### CURRENT FILE: DEV SCRIPT #####
 ###################################
 
+# Confirm the installed body matches what you expect
+print(getS3method("print", "summary.stats2data_aov"))
+print(getS3method("get_stats", "stats2data_aov"))
 # Engineering
 
 ## Dependencies ----

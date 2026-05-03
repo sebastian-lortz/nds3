@@ -64,11 +64,11 @@ optim_aov <- function(
   if (any(target_group_means < range[1] | target_group_means > range[2]))
     stop("All `target_group_means` must lie within `range`.")
   if (!is.list(target_f_list) ||
-      !is.numeric(target_f_list$F) || length(target_f_list$F) < 1)
-    stop("`target_f_list` must be a list with a numeric vector `F`.")
+      !is.numeric(target_f_list$F_value) || length(target_f_list$F_value) < 1)
+    stop("`target_f_list` must be a list with a numeric vector `F_value`.")
   if (!is.character(target_f_list$effect) ||
-      length(target_f_list$effect) != length(target_f_list$F))
-    stop("`target_f_list$effect` must match length of `target_f_list$F`.")
+      length(target_f_list$effect) != length(target_f_list$F_value))
+    stop("`target_f_list$effect` must match length of `target_f_list$F_value`.")
   if (is.character(formula) && length(formula) == 1) {
     formula <- stats::as.formula(formula)
   } else if (!inherits(formula, "formula")) {
@@ -115,7 +115,7 @@ optim_aov <- function(
   group_ids   <- apply(factor_mat, 1, paste0, collapse = "")
   group_idx   <- split(seq_along(group_ids), group_ids)
   group_sizes <- vapply(group_idx, length, integer(1))
-  target_F    <- target_f_list$F
+  target_F    <- target_f_list$F_value
   formula_internal <- stats::as.formula(paste("outcome ~", deparse(formula[[2]])))
 
   # consistent means and F

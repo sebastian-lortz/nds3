@@ -1,6 +1,8 @@
 ---
 title: "stats2data_application"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    df_print: default
 vignette: >
   %\VignetteIndexEntry{stats2data_application}
   %\VignetteEngine{knitr::rmarkdown}
@@ -17,27 +19,26 @@ knitr::opts_chunk$set(
   fig.width  = 6,
   fig.height = 4,
   fig.align  = "left",
-  dpi        = 100
+  dpi        = 300
 )
 ```
 
 # Overview
 
-This vignette walks through two reconstruction tasks based on published studies whose raw data are not publicly available:
+This vignette walks through two empirical examples based on published studies whose raw data are not publicly available:
 
 * an **ANOVA design** with reported cell means and F-statistics (Reynolds & Besner, 2008);
 * a **multiple linear regression** with reported descriptives, correlations, and regression coefficients (Bardwell et al., 2007).
 
 Across the two examples, every exported function in `stats2data` is demonstrated:
 
-* the optimisation entry points `optim_aov()`, `optim_vec()`, `optim_mlr()`, and `parallel_optim()`;
+* the optimisation functions `optim_aov()`, `optim_vec()`, `optim_mlr()`, and `parallel_optim()`;
 * the S3 inspection methods `print()`, `summary()`, `get_stats()`, `get_rmse()`, and `coef()`;
 * the diagnostic and comparison plots `plot_error()`, `plot_cooling()`, `plot_summary()`, `plot()` (for parallel results), `plot_histogram()`, and `plot_partial_regression()`;
-* the data-quality helper `check_grim()`;
-* the reshaping utilities `long_to_wide()` and `wide_to_long()`;
+* the GRIM helper `check_grim()`;
 * the Shiny entry point `run_app()`.
 
-Tuning hyperparameters are left at their package defaults wherever feasible. Two settings (`max_iter` for the ANOVA call, and `max_starts` / `hill_climbs` for the MLR calls) are reduced from the defaults solely so this vignette compiles in reasonable time; production use should retain the defaults.
+Tuning hyperparameters are left at their package defaults wherever feasible.
 
 ## Installation
 
@@ -74,22 +75,22 @@ integer            <- FALSE
 ```{r aov-fvalues}
 target_f_list <- list(
   effect = c("Factor1", "Factor2", "Factor1:Factor2"),
-  F      = c(30.5, 0.0, 0.2)
+  F_value      = c(30.5, .5, .5)
 )
 ```
 
 A plausible response-time range is derived from the reported pooled `MSE = 3070`:
 
 ```{r aov-range}
-L <- min(target_group_means) - floor(3 * sqrt(3070))
-U <- max(target_group_means) + ceiling(3 * sqrt(3070))
+L <- min(target_group_means) - floor(4 * sqrt(3070))
+U <- max(target_group_means) + ceiling(5 * sqrt(3070))
 c(L = L, U = U)
-range <- c(370, 785)
+range <- c(315, 896)
 ```
 
 ## 1.2 Run the optimiser
 
-`optim_aov()` is invoked with `max_iter = 1e3` (default `1e4`) for compile-time reasons. All other arguments (`thresh = 5e-3`, `init_temp = 1e-3`, `cooling_rate = NULL`, `max_starts = 3`) are left at their defaults.
+`optim_aov()` is called with default arguments (`max_iter = 1e4`, `thresh = 5e-3`, `init_temp = 1e-3`, `cooling_rate = NULL` (set automatically), `max_starts = 3`).
 
 ```{r aov-run}
 result.aov <- optim_aov(
@@ -100,9 +101,8 @@ result.aov <- optim_aov(
   factor_type        = factor_type,
   range              = range,
   formula            = formula,
-  integer            = integer,
-  max_iter           = 1e3
-)
+  integer            = integer
+  )
 ```
 
 ## 1.3 Inspect the result
@@ -123,8 +123,7 @@ summary(result.aov)
 
 ```{r aov-stats}
 stats.aov <- get_stats(result.aov)
-stats.aov$F_value
-stats.aov$mean
+stats.aov
 ```
 
 `get_rmse()` returns the F-statistic and group-mean RMSE separately:
@@ -164,29 +163,21 @@ data.aov <- result.aov$data
 head(data.aov)
 ```
 
-`plot_histogram()` returns one ggplot per supplied column:
+We can vizualise the outcomes within groups with a density plot:
 
 ```{r aov-hist, fig.alt = "Distribution of the simulated outcome variable."}
-plot_histogram(data.aov[, "outcome", drop = FALSE])
-```
+library(ggplot2)
 
-## 1.7 Reshaping helpers
-
-`long_to_wide()` requires a `time` column. A within-cell index is derived from the factor levels and the data are projected onto `(ID, time, outcome)` for the demonstration:
-
-```{r aov-reshape}
-data.aov.long <- transform(
-  data.aov,
-  time = as.integer(interaction(Factor1, Factor2, drop = TRUE))
-)
-data.aov.long <- data.aov.long[, c("ID", "time", "outcome")]
-
-data.aov.wide <- long_to_wide(data.aov.long)
-head(data.aov.wide)
-
-# Round-trip back to long format
-data.aov.long2 <- wide_to_long(data.aov.wide)
-head(data.aov.long2)
+ggplot(data.aov,
+       aes(x = outcome,
+           fill = interaction(Factor1, Factor2, sep = " \u00d7 "))) +
+  geom_density(alpha = 0.3, color = "gray20") +
+  scale_fill_grey(start = 0.85, end = 0.25,
+                  name = "Factor1 \u00d7 Factor2") +
+  labs(x = "Outcome", y = "Density") +
+  xlim(200,1000) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "bottom")
 ```
 
 # 2. Descriptives + MLR module --- Bardwell et al. (2007)
@@ -221,7 +212,7 @@ check_grim(n = N, target_mean = target_mean["Fatigue"],    decimals = 1)
 
 ### Run the optimiser
 
-`thresh = 5e-3` is stricter than the default (`1e-2`); all other arguments use the defaults (`sprite_prec = c(2, 2)`, `max_iter = 5e5`, `init_temp = 1e-3`, `cooling_rate = NULL`, `max_starts = 3`).
+We set `sprite_prec = c(1, 1)`,`thresh = .005`, to set the reported rounding precision. Again, we run the optimization with default arguments use the defaults (`thresh = .005`, `max_iter = 5e5`, `init_temp = cooling_rate = NULL` (set automatically), `max_starts = 3`).
 
 ```{r vec-run}
 result.vec <- optim_vec(
@@ -230,7 +221,8 @@ result.vec <- optim_vec(
   target_sd   = target_sd,
   range       = range_matrix,
   integer     = integer,
-  thresh      = 5e-3
+  sprite_prec = c(1, 1),
+  thresh = .05
 )
 ```
 
@@ -254,7 +246,7 @@ get_rmse(result.vec)
 `plot_error()` for a `stats2data_vec` object accepts `run` to select a per-variable trajectory; here the trajectory for `Fatigue` (the fourth variable) is shown:
 
 ```{r vec-error, fig.alt = "Error trajectory for the Fatigue marginal."}
-plot_error(result.vec, run = 4)
+plot_error(result.vec, run = 2)
 ```
 
 ```{r vec-cooling, fig.alt = "Cooling schedule for the descriptives optimisation."}
@@ -272,14 +264,46 @@ plot_summary(result.vec, standardised = FALSE)
 ```{r vec-data, fig.width = 8, fig.height = 6, fig.alt = "Histograms of the four simulated marginals."}
 data.vec <- result.vec$data
 head(data.vec)
-gridExtra::grid.arrange(grobs = plot_histogram(data.vec), ncol = 2)
+
+library(ggplot2)
+
+cont_vars <- c("Apnea.1", "Apnea.2")
+int_vars  <- c("Depression", "Fatigue")
+
+ggdata.vec <- tidyr::pivot_longer(
+  data.vec,
+  cols      = c(Apnea.1, Apnea.2, Depression, Fatigue),
+  names_to  = "variable",
+  values_to = "value"
+)
+ggdata.vec$variable <- factor(
+  ggdata.vec$variable,
+  levels = c(cont_vars, int_vars)
+)
+ggdata.vec$kind <- ifelse(ggdata.vec$variable %in% int_vars,
+                          "integer", "continuous")
+
+ggplot(ggdata.vec, aes(x = value)) +
+  geom_density(
+    data  = subset(ggdata.vec, kind == "continuous"),
+    fill  = "gray60", color = "gray20", alpha = 0.5
+  ) +
+  geom_histogram(
+    data     = subset(ggdata.vec, kind == "integer"),
+    aes(y    = after_stat(density)),
+    binwidth = 1,
+    fill     = "gray60", color = "gray20"
+  ) +
+  facet_wrap(~ variable, scales = "free", nrow = 2) +
+  labs(x = NULL, y = "Density") +
+  theme_minimal(base_size = 13)
 ```
 
-## 2.2 Step 2 --- joint structure via `optim_mlr()`
+## 2.2 Step 2 --- regression structure via `optim_mlr()`
 
 ### Targets
 
-The reported regression coefficients (intercept first), their standard errors, and the upper-triangular pairwise correlations (column-wise, excluding the diagonal) are encoded as numeric vectors. `NA` entries flag unreported values that are excluded from the objective.
+The reported regression coefficients (intercept first), their standard errors, and the upper-triangular correlation matrix (column-wise, excluding the diagonal) are encoded as numeric vectors. `NA` entries flag unreported values that are excluded from the objective.
 
 ```{r lm-targets}
 target_reg <- c(4.020, 0.023, 0.008, 0.438)
@@ -294,7 +318,7 @@ reg_equation <- "Fatigue ~ Apnea.1 + Apnea.2 + Depression"
 For compile-time reasons the local-refinement step is disabled (`hill_climbs = NULL`; default `1e4`), `max_starts` is reduced to `1` (default `3`), and `max_iter` is reduced to `1e4` (default `1e5`). All other arguments use the defaults (`weight = 0.5`, `thresh = 5e-3`, `init_temp = NULL` for adaptive initialisation, `cooling_rate = NULL`).
 
 ```{r lm-run}
-result.lm <- optim_mlr(
+result.mlr <- optim_mlr(
   N            = N,
   target_mean  = target_mean,
   target_sd    = target_sd,
@@ -304,39 +328,38 @@ result.lm <- optim_mlr(
   target_cor   = target_cor,
   target_reg   = target_reg,
   target_se    = target_se,
-  max_iter     = 1e4,
-  max_starts   = 1,
-  hill_climbs  = NULL
+  thresh       = .0005,
+  weight = .05,
 )
 ```
 
 ### Inspect
 
 ```{r lm-print}
-result.lm
+result.mlr
 ```
 
 ```{r lm-summary}
-summary(result.lm)
+summary(result.mlr)
 ```
 
 `get_stats()` returns the fitted `lm`, its coefficients and standard errors, the upper-triangular correlation vector, and the column-wise means and SDs:
 
 ```{r lm-stats}
-stats.lm <- get_stats(result.lm)
-stats.lm$reg
-stats.lm$se
-stats.lm$cor
+stats.mlr <- get_stats(result.mlr)
+stats.mlr$reg
+stats.mlr$se
+stats.mlr$cor
 ```
 
 `coef()` is a convenience wrapper that re-fits the regression and returns the coefficient vector:
 
 ```{r lm-coef}
-coef(result.lm)
+coef(result.mlr)
 ```
 
 ```{r lm-rmse}
-get_rmse(result.lm)
+get_rmse(result.mlr)
 ```
 
 ### Diagnostics
@@ -344,42 +367,58 @@ get_rmse(result.lm)
 `plot_error()` shows the total-objective trajectory:
 
 ```{r lm-error, fig.alt = "Error trajectory for the MLR optimisation."}
-plot_error(result.lm)
+plot_error(result.mlr, first_iter = 1000)
 ```
 
 For `stats2data_mlr` objects, `plot_error()` exposes a `ratio = TRUE` switch that plots the per-iteration correlation-to-regression error ratio together with mean, median, and final reference lines:
 
 ```{r lm-error-ratio, fig.alt = "Cor/Reg error ratio trajectory for MLR."}
-plot_error(result.lm, ratio = TRUE)
+plot_error(result.mlr, ratio = TRUE)
 ```
 
-```{r lm-cooling, fig.alt = "Cooling schedule for the MLR optimisation."}
-plot_cooling(result.lm)
+We observe that the regression errors dominate the objective function, thus, we assign a priori more weight to the regression component compared to the correlation component by `weight = .05`. We run the optimization again, and plot the errror ratio:
+```{r lm-cooling, fig.alt = "Weight tuned MLR optimisation."}
+result.mlr <- optim_mlr(
+  N            = N,
+  target_mean  = target_mean,
+  target_sd    = target_sd,
+  range        = range_matrix,
+  integer      = integer,
+  reg_equation = reg_equation,
+  target_cor   = target_cor,
+  target_reg   = target_reg,
+  target_se    = target_se,
+  thresh       = .0005,
+  weight = .05,
+)
+plot_error(result.mlr, ratio = TRUE)
 ```
+
+By doing that we see a more balanced contribution of both components, that further lowered the objective value, increasing the match with the target summary statistics.
 
 ### Target vs. simulated comparison
 
 ```{r lm-summary-plot, fig.alt = "MLR target-vs-simulated lollipop chart."}
-plot_summary(result.lm, standardised = FALSE)
+plot_summary(result.mlr, standardised = FALSE)
 ```
 
 ### Inspect the simulated dataset
 
 ```{r lm-data}
-data.lm <- result.lm$data
-head(data.lm)
+data.mlr <- result.mlr$data
+head(data.mlr)
 ```
 
 `plot_partial_regression()` returns one partial-regression ggplot per predictor, each annotated with the partial slope and the residual SD:
 
 ```{r lm-partial, fig.width = 11, fig.height = 8, fig.alt = "Partial-regression plots for the MLR fit."}
-partial.plots <- plot_partial_regression(lm(reg_equation, data = data.lm))
+partial.plots <- plot_partial_regression(lm(reg_equation, data = data.mlr))
 gridExtra::grid.arrange(grobs = partial.plots, ncol = 2)
 ```
 
 ## 2.3 Step 3 --- repeated runs via `parallel_optim()`
 
-`parallel_optim()` repeatedly invokes any `optim_*` function with the same arguments, returns the list of results, and identifies the single best run by minimum objective error. `runs = 5` sequential replications are used here for compile-time reasons; setting `cores > 1` dispatches the runs to multiple R sessions via `future::multisession`.
+`parallel_optim()` repeatedly calls any `optim_*` function with the same arguments, returns the list of results, and identifies the single best run by minimum objective error. `runs = 18` parallel replications are used here for compile-time reasons; setting `cores = 6` dispatches the runs to multiple R sessions via `future::multisession`.
 
 ```{r lm-parallel, results = "hide", message = FALSE}
 result.parallel <- parallel_optim(
@@ -394,12 +433,11 @@ result.parallel <- parallel_optim(
     target_cor   = target_cor,
     target_reg   = target_reg,
     target_se    = target_se,
-    max_iter     = 1e4,
-    max_starts   = 1,
-    hill_climbs  = NULL
+    thresh       = .0005,
+    weight       = .05
   ),
-  runs  = 5,
-  cores = 1,
+  runs  = 18,
+  cores = 6,
   seed  = 2026
 )
 ```
@@ -431,7 +469,7 @@ get_rmse(result.parallel)
 The `plot()` method for `stats2data_parallel` displays the between-run RMSE distribution alongside the deviation-from-target RMSE distribution, faceted by metric:
 
 ```{r par-plot, fig.width = 10, fig.height = 5, fig.alt = "Between-run vs. target RMSE distributions across parallel runs."}
-plot(result.parallel)
+plot_summary(result.parallel)
 ```
 
 The single best run is accessible via `$best` and supports the same S3 methods as a stand-alone result:
@@ -450,8 +488,11 @@ run_app()
 ```
 
 # References
-
-- Bardwell, W. A., Moore, P., Ancoli-Israel, S., & Dimsdale, J. E. (2007). Re: Fatigue in obstructive sleep apnea: Driven by depressive symptoms instead of apnea severity? *Journal of Affective Disorders*. doi:10.1016/j.jad.2006.06.013
-- Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM test: A simple technique detects numerous anomalies in the reporting of results in psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
-- Open Science Collaboration. (2015). Estimating the reproducibility of psychological science. *Science*, 349(6251), aac4716.
-- Reynolds, M., & Besner, D. (2008). Contextual effects in reading aloud: Evidence for pathway control. *Journal of Experimental Psychology: Learning, Memory, and Cognition*, 34(1), 50–64.
+- Bardwell, W. A., Moore, P., Ancoli-Israel, S., & Dimsdale, J. E. (2003). Fatigue in obstructive sleep apnea: driven by depressive symptoms instead of apnea severity?. The American journal of psychiatry, 160(2), 350–355. https://doi.org/10.1176/appi.ajp.160.2.350
+- Bardwell, W. A., Ancoli-Israel, S., & Dimsdale, J. E. (2007). Comparison of the effects of depressive symptoms and apnea severity on fatigue in patients with obstructive sleep apnea: a replication study. Journal of affective disorders, 97(1-3), 181–186. https://doi.org/10.1016/j.jad.2006.06.013
+- Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A Simple Technique Detects
+Numerous Anomalies in the Reporting of Results in Psychology. Social Psychological
+and Personality Science, 8 (4), 363–369. https://doi.org/10.1177/1948550616673876
+- Open Science Collaboration. (2015). Estimating the reproducibility of psychological science.
+Science, 349 (6251), aac4716. https://doi.org/10.1126/science.aac4716
+- Reynolds, M., & Besner, D. (2008). Contextual effects on reading aloud: Evidence for pathway control. Journal of Experimental Psychology: Learning, Memory, and Cognition, 34(1), 50–64. https://doi.org/10.1037/0278-7393.34.1.50

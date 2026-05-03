@@ -221,7 +221,7 @@ mod_optim_aov_server <- function(id){
     )
     initial_aov <- data.frame(
       effect    = c("Factor1","Factor2","Factor1:Factor2"),
-      F         = c(8.2,321.2,3.4),
+      F_value         = c(8.2,321.2,3.4),
       stringsAsFactors = FALSE
     )
 
@@ -327,7 +327,7 @@ mod_optim_aov_server <- function(id){
 
     initial_df_aov <- data.frame(
       effect          = c("Factor1", "Factor2", "Factor1:Factor2"),
-      F               = c(8.2, 321.2, 3.4),
+      F_value               = c(8.2, 321.2, 3.4),
       stringsAsFactors = FALSE
     )
     rv_aov <- reactiveValues(
@@ -362,7 +362,7 @@ mod_optim_aov_server <- function(id){
       df <- rv_aov$params
       df[nrow(df)+1, ] <- list(
         effect          = "",
-        F               = NA_real_
+        F_value               = NA_real_
       )
       rv_aov$params <- df
     })
@@ -444,7 +444,7 @@ mod_optim_aov_server <- function(id){
       ok2 <- !is.null(df_aov) &&
         nrow(df_aov) > 0 &&
         all(nzchar(df_aov$effect),
-            !is.na(df_aov$F))
+            !is.na(df_aov$F_value))
       if (ok1 && ok2) {
         shinyjs::enable("run")
       } else {
@@ -489,7 +489,7 @@ mod_optim_aov_server <- function(id){
       nm                 <- canonical_name_map()
       target_f_list      <- list(
         effect          = remap_effects(aov_df$effect, nm),
-        F               = aov_df$F
+        F_value               = aov_df$F_value
       )
       integer            <- input$integer
       range_val          <- input$range

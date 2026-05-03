@@ -233,7 +233,7 @@ get_rmse.stats2data_parallel <- function(result, ...) {
 
   stats_list <- lapply(result$results, get_stats)
   inp        <- result$results[[1L]]$inputs
-  target_F   <- inp$target_f_list$F
+  target_F   <- inp$target_f_list$F_value
   F_dec      <- max(count_decimals(target_F))
 
   F_mat <- do.call(rbind, lapply(stats_list, function(s) round(s$F_value, F_dec)))
@@ -420,4 +420,300 @@ plot.stats2data_parallel <- function(x, ...) {
 
   print(p)
   invisible(p)
+}
+
+
+# ---- plot_summary --------------------------------------------------------
+
+#' @describeIn plot_summary Method for parallel results
+#'   (\code{stats2data_parallel}). Aggregates each simulated parameter as the
+#'   across-run mean (rounded to the target's reported precision) and overlays
+#'   an error bar showing the across-run min/max
+#'   (\code{error_type = "range"}, default) or \code{mean \u00b1 SD}
+#'   (\code{error_type = "sd"}). Module-specific data assembly is dispatched
+#'   internally based on \code{x$module}.
+#'
+#' @param x An object of class \code{stats2data_parallel}.
+#' @param standardised Logical; if \code{TRUE} (default), differences are
+#'   divided by target values, with a fall-back to the unstandardised
+#'   difference for targets whose absolute value is below \code{eps}.
+#' @param eps Numeric; threshold below which a target is treated as zero
+#'   for standardisation. Default \code{1e-12}.
+#' @param error_type Character; \code{"range"} (default) draws across-run
+#'   min/max error bars, \code{"sd"} draws \code{mean \u00b1 SD} across runs.
+#' @param ... Currently unused.
+#'
+#' @return A \code{\link[ggplot2]{ggplot}} object, returned invisibly.
+#'
+#' @examples
+#' \dontrun{
+#' res <- parallel_optim(FUN = optim_mlr, args = list(...), runs = 20)
+#' plot_summary(res)
+#' plot_summary(res, standardised = FALSE, error_type = "sd")
+#' }
+#'
+#' @importFrom rlang .data
+#' @export
+plot_summary.stats2data_parallel <- function(x,
+                                             standardised = TRUE,
+                                             eps          = 1e-12,
+                                             error_type   = c("range", "sd"),
+                                             ...) {
+
+  if (!is.logical(standardised) || length(standardised) != 1L) {
+    stop("`standardised` must be a single logical value.", call. = FALSE)
+  }
+  if (!is.numeric(eps) || length(eps) != 1L) {
+    stop("`eps` must be a single numeric value.", call. = FALSE)
+  }
+  error_type <- match.arg(error_type)
+
+  module <- x$module
+  built  <- switch(
+    module,
+    vec = .plot_summary_parallel_vec(x, standardised, eps, error_type),
+    mlr = .plot_summary_parallel_mlr(x, standardised, eps, error_type),
+    aov = .plot_summary_parallel_aov(x, standardised, eps, error_type),
+    stop("Unrecognised module: ", module, call. = FALSE)
+  )
+
+  module_label <- switch(module,
+                         vec = "Descriptives Module (parallel)",
+                         mlr = "MLR Module (parallel)",
+                         aov = "ANOVA Module (parallel)")
+
+  p <- .plot_summary_engine(
+    built$df, standardised,
+    x_lab        = built$x_lab,
+    title_module = module_label
+  )
+
+  err_label <- switch(error_type,
+                      range = "across-run min/max",
+                      sd    = "mean \u00b1 SD across runs")
+
+  p <- p +
+    ggplot2::geom_errorbar(
+      mapping = ggplot2::aes(
+        ymin = .data$Lower,
+        ymax = .data$Upper
+      ),
+      width = 0.2,
+      color = "gray30",
+      na.rm = TRUE
+    ) +
+    ggplot2::labs(caption = paste0("Error bars: ", err_label))
+
+  print(p)
+  invisible(p)
+}
+
+
+# ---- Internal: parallel plot_summary helpers ----------------------------
+
+#' Aggregate a per-parameter matrix (rows = parameters, cols = runs) into
+#' the across-run point estimate plus low/high bounds on the simulated scale.
+#'
+#' @noRd
+.parallel_sim_block <- function(mat, dec, error_type) {
+  if (!is.matrix(mat)) mat <- as.matrix(mat)
+  mat_r <- round(mat, dec)
+  sim   <- rowMeans(mat_r, na.rm = TRUE)
+
+  if (error_type == "range") {
+    lo <- apply(mat_r, 1, min, na.rm = TRUE)
+    hi <- apply(mat_r, 1, max, na.rm = TRUE)
+  } else {
+    s  <- apply(mat_r, 1, stats::sd, na.rm = TRUE)
+    lo <- sim - s
+    hi <- sim + s
+  }
+
+  # rowMeans / min / max return Inf or NaN for all-NA rows; coerce to NA
+  sim[!is.finite(sim)] <- NA_real_
+  lo[!is.finite(lo)]   <- NA_real_
+  hi[!is.finite(hi)]   <- NA_real_
+
+  list(sim = sim, lo = lo, hi = hi)
+}
+
+
+#' Convert simulated-scale low/high values to centered-scale Lower/Upper,
+#' guarding against the sign-flip that occurs when standardising by a
+#' negative target.
+#'
+#' @noRd
+.centered_bounds <- function(sim_lo, sim_hi, target, standardised, eps) {
+  c_lo <- .compute_centered(sim_lo, target, standardised, eps)
+  c_hi <- .compute_centered(sim_hi, target, standardised, eps)
+  list(Lower = pmin(c_lo, c_hi), Upper = pmax(c_lo, c_hi))
+}
+
+
+#' @noRd
+.plot_summary_parallel_vec <- function(x, standardised, eps, error_type) {
+
+  inp         <- x$results[[1L]]$inputs
+  target_mean <- inp$target_mean
+  target_sd   <- inp$target_sd
+  vars        <- names(target_mean)
+  if (is.null(vars)) vars <- colnames(x$results[[1L]]$data)
+
+  stats_list <- lapply(x$results, get_stats)
+  mat_mean   <- do.call(cbind, lapply(stats_list, `[[`, "mean"))
+  mat_sd     <- do.call(cbind, lapply(stats_list, `[[`, "sd"))
+
+  mb <- .parallel_sim_block(mat_mean, max(count_decimals(target_mean)), error_type)
+  sb <- .parallel_sim_block(mat_sd,   max(count_decimals(target_sd)),   error_type)
+
+  cm <- .compute_centered(mb$sim, target_mean, standardised, eps)
+  cs <- .compute_centered(sb$sim, target_sd,   standardised, eps)
+  bm <- .centered_bounds(mb$lo, mb$hi, target_mean, standardised, eps)
+  bs <- .centered_bounds(sb$lo, sb$hi, target_sd,   standardised, eps)
+
+  df <- data.frame(
+    Variable  = rep(vars, 2L),
+    Measure   = rep(c("Mean", "SD"), each = length(vars)),
+    Simulated = c(as.numeric(mb$sim), as.numeric(sb$sim)),
+    Target    = c(as.numeric(target_mean), as.numeric(target_sd)),
+    Centered  = c(cm, cs),
+    Lower     = c(bm$Lower, bs$Lower),
+    Upper     = c(bm$Upper, bs$Upper),
+    stringsAsFactors = FALSE
+  )
+  df <- .tag_sim_type(df, standardised, eps)
+
+  df <- df %>%
+    dplyr::group_by(.data$Measure) %>%
+    dplyr::mutate(
+      Variable = factor(.data$Variable, levels = unique(.data$Variable))
+    ) %>%
+    dplyr::ungroup()
+
+  list(df = df, x_lab = "Variable")
+}
+
+
+#' @noRd
+.plot_summary_parallel_mlr <- function(x, standardised, eps, error_type) {
+
+  inp        <- x$results[[1L]]$inputs
+  target_reg <- inp$target_reg
+  target_cor <- inp$target_cor
+  target_se  <- inp$target_se
+
+  reg_dec <- max(count_decimals(target_reg))
+  cor_dec <- max(count_decimals(target_cor))
+
+  stats_list <- lapply(x$results, get_stats)
+  mat_reg    <- do.call(cbind, lapply(stats_list, `[[`, "reg"))
+  mat_cor    <- do.call(cbind, lapply(stats_list, `[[`, "cor"))
+
+  rb <- .parallel_sim_block(mat_reg, reg_dec, error_type)
+  cb <- .parallel_sim_block(mat_cor, cor_dec, error_type)
+
+  # regression coefficients ------------------------------------------------
+  cr  <- .compute_centered(rb$sim, target_reg, standardised, eps)
+  brb <- .centered_bounds(rb$lo, rb$hi, target_reg, standardised, eps)
+  df_reg <- data.frame(
+    Measure   = "Regression Coefficient",
+    Variable  = names(target_reg),
+    Simulated = as.numeric(rb$sim),
+    Target    = as.numeric(target_reg),
+    Centered  = cr,
+    Lower     = brb$Lower,
+    Upper     = brb$Upper,
+    stringsAsFactors = FALSE
+  )
+  df_reg <- .tag_sim_type(df_reg, standardised, eps)
+
+  # correlations -----------------------------------------------------------
+  var_names_cor <- names(target_cor)
+  if (is.null(var_names_cor)) {
+    var_names_cor <- paste0("Cor", seq_along(target_cor))
+  }
+  cc  <- .compute_centered(cb$sim, target_cor, standardised, eps)
+  bcb <- .centered_bounds(cb$lo, cb$hi, target_cor, standardised, eps)
+  df_cor <- data.frame(
+    Measure   = "Correlation",
+    Variable  = var_names_cor,
+    Simulated = as.numeric(cb$sim),
+    Target    = as.numeric(target_cor),
+    Centered  = cc,
+    Lower     = bcb$Lower,
+    Upper     = bcb$Upper,
+    stringsAsFactors = FALSE
+  )
+  df_cor <- .tag_sim_type(df_cor, standardised, eps)
+
+  # standard errors (optional) --------------------------------------------
+  df_se <- NULL
+  if (!is.null(target_se)) {
+    se_dec <- max(count_decimals(target_se))
+    mat_se <- do.call(cbind, lapply(stats_list, `[[`, "se"))
+    sb     <- .parallel_sim_block(mat_se, se_dec, error_type)
+    cs     <- .compute_centered(sb$sim, target_se, standardised, eps)
+    bsb    <- .centered_bounds(sb$lo, sb$hi, target_se, standardised, eps)
+    var_names_se <- if (!is.null(names(target_se))) {
+      names(target_se)
+    } else {
+      names(target_reg)[seq_along(target_se)]
+    }
+    df_se <- data.frame(
+      Measure   = "Standard Error",
+      Variable  = var_names_se,
+      Simulated = as.numeric(sb$sim),
+      Target    = as.numeric(target_se),
+      Centered  = cs,
+      Lower     = bsb$Lower,
+      Upper     = bsb$Upper,
+      stringsAsFactors = FALSE
+    )
+    df_se <- .tag_sim_type(df_se, standardised, eps)
+  }
+
+  df_all <- dplyr::bind_rows(df_reg, df_cor, df_se) %>%
+    dplyr::group_by(.data$Measure) %>%
+    dplyr::mutate(
+      Variable = factor(.data$Variable, levels = unique(.data$Variable))
+    ) %>%
+    dplyr::ungroup()
+
+  list(df = df_all, x_lab = "Parameter")
+}
+
+
+#' @noRd
+.plot_summary_parallel_aov <- function(x, standardised, eps, error_type) {
+
+  inp      <- x$results[[1L]]$inputs
+  target_F <- inp$target_f_list$F_value
+  F_dec    <- max(count_decimals(target_F))
+
+  stats_list <- lapply(x$results, get_stats)
+  mat_F      <- do.call(cbind, lapply(stats_list, `[[`, "F_value"))
+
+  fb  <- .parallel_sim_block(mat_F, F_dec, error_type)
+  cf  <- .compute_centered(fb$sim, target_F, standardised, eps)
+  bfb <- .centered_bounds(fb$lo, fb$hi, target_F, standardised, eps)
+
+  effect_names <- inp$target_f_list$effect
+  if (is.null(effect_names)) {
+    effect_names <- paste0("Effect", seq_along(target_F))
+  }
+
+  df <- data.frame(
+    Measure   = "F Statistic",
+    Variable  = effect_names,
+    Simulated = as.numeric(fb$sim),
+    Target    = as.numeric(target_F),
+    Centered  = cf,
+    Lower     = bfb$Lower,
+    Upper     = bfb$Upper,
+    stringsAsFactors = FALSE
+  )
+  df <- .tag_sim_type(df, standardised, eps)
+  df$Variable <- factor(df$Variable, levels = effect_names)
+
+  list(df = df, x_lab = "Effect")
 }

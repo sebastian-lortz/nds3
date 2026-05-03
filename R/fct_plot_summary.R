@@ -257,7 +257,7 @@ plot_summary.stats2data_aov <- function(x, standardised = TRUE, eps = 1e-12, ...
   inp   <- x$inputs
   stats <- get_stats(x)
 
-  target_F <- inp$target_f_list$F
+  target_F <- inp$target_f_list$F_value
   F_dec    <- count_decimals(target_F)
   sim_F_r  <- round(stats$F_value, F_dec)
 

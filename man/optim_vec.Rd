@@ -10,7 +10,7 @@ optim_vec(
   target_sd,
   range,
   integer,
-  thresh = 0.01,
+  thresh = 0.005,
   sprite_prec = c(2, 2),
   max_iter = 5e+05,
   init_temp = 0.001,

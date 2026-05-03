@@ -13,9 +13,12 @@
 }
 \value{
 An object of class \code{summary.stats2data_aov}, printed by
-  \code{\link{print.summary.stats2data_aov}}.
+  \code{\link{print.summary.stats2data_aov}}. The list always contains
+  \code{f_comparison} and \code{means_comparison} data frames, even if
+  \code{get_stats()} returned \code{NA} values; in that case the
+  simulated columns are \code{NA} and the print method emits a warning.
 }
 \description{
-Computes target-vs-simulated statistics and RMSE for a \code{stats2data_aov}
-object.
+Computes target-vs-simulated statistics and RMSE for a
+\code{stats2data_aov} object.
 }

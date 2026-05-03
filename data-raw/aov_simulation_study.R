@@ -304,7 +304,7 @@ apply_optim_aov <- function(targets, tol) {
           optim_aov(S = t$S, levels = t$levels,
                     target_group_means = t$group_means,
                     subgroup_sizes = t$subgroup_sizes,
-                    target_f_list = list(effect = t$effect_names, F = t$f_vals),
+                    target_f_list = list(effect = t$effect_names, F_value = t$f_vals),
                     integer = is_int, range = t$range, formula = t$formula,
                     factor_type = t$factor_type, thresh = tol,
                     progress_mode = "console"),
